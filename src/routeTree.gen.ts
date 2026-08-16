@@ -10,33 +10,102 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AgentIndexRouteImport } from './routes/agent.index'
+import { Route as AgentImportsRouteImport } from './routes/agent.imports'
+import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
+import { Route as PropertiesPropertyIdRouteImport } from './routes/properties.$propertyId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentIndexRoute = AgentIndexRouteImport.update({
+  id: '/agent/',
+  path: '/agent/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentImportsRoute = AgentImportsRouteImport.update({
+  id: '/agent/imports',
+  path: '/agent/imports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
+  id: '/properties/',
+  path: '/properties/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
+  id: '/properties/$propertyId',
+  path: '/properties/$propertyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/agent/imports': typeof AgentImportsRoute
+  '/properties/$propertyId': typeof PropertiesPropertyIdRoute
+  '/agent/': typeof AgentIndexRoute
+  '/properties/': typeof PropertiesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/agent/imports': typeof AgentImportsRoute
+  '/properties/$propertyId': typeof PropertiesPropertyIdRoute
+  '/agent': typeof AgentIndexRoute
+  '/properties': typeof PropertiesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
+  '/agent/imports': typeof AgentImportsRoute
+  '/properties/$propertyId': typeof PropertiesPropertyIdRoute
+  '/agent/': typeof AgentIndexRoute
+  '/properties/': typeof PropertiesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/contact'
+    | '/agent/imports'
+    | '/properties/$propertyId'
+    | '/agent/'
+    | '/properties/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/contact'
+    | '/agent/imports'
+    | '/properties/$propertyId'
+    | '/agent'
+    | '/properties'
+  id:
+    | '__root__'
+    | '/'
+    | '/contact'
+    | '/agent/imports'
+    | '/properties/$propertyId'
+    | '/agent/'
+    | '/properties/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContactRoute: typeof ContactRoute
+  AgentImportsRoute: typeof AgentImportsRoute
+  PropertiesPropertyIdRoute: typeof PropertiesPropertyIdRoute
+  AgentIndexRoute: typeof AgentIndexRoute
+  PropertiesIndexRoute: typeof PropertiesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +117,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/': {
+      id: '/agent/'
+      path: '/agent'
+      fullPath: '/agent/'
+      preLoaderRoute: typeof AgentIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/imports': {
+      id: '/agent/imports'
+      path: '/agent/imports'
+      fullPath: '/agent/imports'
+      preLoaderRoute: typeof AgentImportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/properties/': {
+      id: '/properties/'
+      path: '/properties'
+      fullPath: '/properties/'
+      preLoaderRoute: typeof PropertiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/properties/$propertyId': {
+      id: '/properties/$propertyId'
+      path: '/properties/$propertyId'
+      fullPath: '/properties/$propertyId'
+      preLoaderRoute: typeof PropertiesPropertyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContactRoute: ContactRoute,
+  AgentImportsRoute: AgentImportsRoute,
+  PropertiesPropertyIdRoute: PropertiesPropertyIdRoute,
+  AgentIndexRoute: AgentIndexRoute,
+  PropertiesIndexRoute: PropertiesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
