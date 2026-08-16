@@ -114,7 +114,7 @@ function Index() {
                 >
                   <Icon className="size-6 text-primary" />
                   <p className="mt-4 font-semibold">{t}s</p>
-                  <p className="text-sm text-muted-foreground">{count} properties listed</p>
+                  <p className="text-sm text-muted-foreground">{count} {count === 1 ? "property" : "properties"} listed</p>
                   <span className="mt-3 inline-flex items-center gap-1 text-sm text-primary">
                     Browse <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                   </span>
