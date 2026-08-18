@@ -1,0 +1,330 @@
+// Prisma schema for the Ocean Atlas Maldives booking platform.
+// Phase 1 — database design. Rates are the source of truth for pricing:
+// rooms are definitions only, prices live on Rate rows so supplier
+// rate sheets can be imported without touching room data.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum PropertyType {
+  RESORT
+  HOTEL
+  GUESTHOUSE
+  SAFARI_BOAT
+}
+
+enum PropertyStatus {
+  ACTIVE
+  HIDDEN
+}
+
+enum PricingMethod {
+  PER_ROOM
+  PER_PERSON
+}
+
+enum RoomStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum AddonPricingType {
+  PER_PERSON
+  PER_ROOM
+  FIXED
+}
+
+enum AddonCategory {
+  SPA
+  DINING
+  DIVING
+  EXCURSION
+  TRANSFER
+}
+
+enum BookingStatus {
+  NEW
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  BOOKING_AGENT
+  CONTENT_MANAGER
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum ImportType {
+  RATES
+  AVAILABILITY
+}
+
+enum ImportStatus {
+  PENDING
+  VALIDATING
+  IMPORTING
+  COMPLETED
+  FAILED
+}
+
+// ---------------------------------------------------------------------------
+// Identity & access (Phase 2)
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  fullName     String
+  passwordHash String
+  role         UserRole   @default(BOOKING_AGENT)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([role])
+}
+
+// ---------------------------------------------------------------------------
+// Catalogue
+// ---------------------------------------------------------------------------
+
+model Property {
+  id                       String        @id @default(cuid())
+  slug                     String        @unique
+  name                     String
+  type                     PropertyType
+  atoll                    String
+  island                   String
+  description              String
+  highlights               String[]
+  amenities                String[]
+  gallery                  String[]
+  transferMethod           String
+  transferDuration         String
+  transferPricePerPerson   Decimal       @db.Decimal(12, 2)
+  featured                 Boolean       @default(false)
+  status                   PropertyStatus @default(ACTIVE)
+  rating                   Decimal       @default(0) @db.Decimal(3, 2)
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+
+  rooms        Room[]
+  addons       Addon[]
+  rates        Rate[]
+  availabilities Availability[]
+  bookings     Booking[]
+
+  @@index([type])
+  @@index([atoll])
+  @@index([status])
+}
+
+model Room {
+  id            String        @id @default(cuid())
+  propertyId    String
+  name          String
+  description   String?
+  size          String?
+  boardBasis    String?
+  pricingMethod PricingMethod @default(PER_ROOM)
+  maxAdults     Int           @default(2)
+  maxChildren   Int           @default(0)
+  extraGuestRate Decimal?     @db.Decimal(12, 2)
+  status        RoomStatus    @default(ACTIVE)
+  sortOrder     Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  property      Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  rates         Rate[]
+  availabilities Availability[]
+  bookings      Booking[]
+
+  @@index([propertyId])
+  @@index([status])
+}
+
+model Addon {
+  id          String           @id @default(cuid())
+  propertyId  String?
+  name        String
+  description String
+  pricingType AddonPricingType
+  amount      Decimal          @db.Decimal(12, 2)
+  category    AddonCategory
+  active      Boolean          @default(true)
+  sortOrder   Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  bookings BookingAddon[]
+
+  @@index([propertyId])
+  @@index([category])
+}
+
+// ---------------------------------------------------------------------------
+// Pricing & availability (source of truth)
+// ---------------------------------------------------------------------------
+
+model Rate {
+  id         String   @id @default(cuid())
+  propertyId String
+  roomId     String
+  validFrom  DateTime @db.Date
+  validTo    DateTime @db.Date
+  amount     Decimal  @db.Decimal(12, 2)
+  currency   String   @default("USD")
+  season     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, validFrom, validTo])
+  @@index([propertyId])
+}
+
+model Availability {
+  id         String   @id @default(cuid())
+  propertyId String
+  roomId     String
+  date       DateTime @db.Date
+  inventory  Int
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, date])
+  @@index([propertyId, date])
+}
+
+// ---------------------------------------------------------------------------
+// Bookings
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id        String   @id @default(cuid())
+  fullName  String
+  email     String   @unique
+  phone     String
+  country   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@index([email])
+}
+
+model Booking {
+  id             String        @id @default(cuid())
+  reference      String        @unique
+  status         BookingStatus @default(NEW)
+  propertyId     String
+  roomId         String
+  customerId     String
+  checkIn        DateTime      @db.Date
+  checkOut       DateTime      @db.Date
+  nights         Int
+  adults         Int
+  children       Int
+  totalPrice     Decimal       @db.Decimal(12, 2)
+  currency       String        @default("USD")
+  specialRequests String?
+  submittedAt    DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  property Property        @relation(fields: [propertyId], references: [id])
+  room     Room            @relation(fields: [roomId], references: [id])
+  customer Customer        @relation(fields: [customerId], references: [id])
+  addons   BookingAddon[]
+
+  @@index([status])
+  @@index([propertyId])
+  @@index([customerId])
+  @@index([checkIn, checkOut])
+}
+
+model BookingAddon {
+  bookingId     String
+  addonId       String
+  priceSnapshot Decimal @db.Decimal(12, 2)
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  addon   Addon   @relation(fields: [addonId], references: [id])
+
+  @@id([bookingId, addonId])
+}
+
+// ---------------------------------------------------------------------------
+// Supplier imports
+// ---------------------------------------------------------------------------
+
+model ImportJob {
+  id          String       @id @default(cuid())
+  type        ImportType
+  filename    String
+  status      ImportStatus @default(PENDING)
+  totalRows   Int          @default(0)
+  successRows Int          @default(0)
+  failedRows  Int          @default(0)
+  createdBy   String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  errors ImportError[]
+
+  @@index([type])
+  @@index([status])
+}
+
+model ImportError {
+  id          String   @id @default(cuid())
+  importJobId String
+  rowNumber   Int
+  message     String
+
+  importJob ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+
+  @@index([importJobId])
+}
+
+// ---------------------------------------------------------------------------
+// Search analytics
+// ---------------------------------------------------------------------------
+
+model SearchLog {
+  id           String   @id @default(cuid())
+  checkIn      DateTime @db.Date
+  checkOut     DateTime @db.Date
+  adults       Int      @default(2)
+  children     Int      @default(0)
+  propertyType String?
+  transfer     String?
+  resultCount  Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([checkIn, checkOut])
+}

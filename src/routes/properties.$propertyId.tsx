@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { MapPin, Star, Plane, Check, Users, CalendarDays, Sparkles, ArrowLeft, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -11,15 +11,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { getProperty, properties } from "@/lib/mock-data";
+import { createBooking } from "@/lib/api/bookings";
+import { getPropertyById, listProperties } from "@/lib/api/properties";
 import { calculatePrice, money } from "@/lib/pricing";
 
 export const Route = createFileRoute("/properties/$propertyId")({
-  loader: ({ params }) => {
-    const property = getProperty(params.propertyId);
+  loader: async ({ params }) => {
+    const [property, all] = await Promise.all([
+      getPropertyById({ data: params.propertyId }),
+      listProperties(),
+    ]);
     if (!property) throw notFound();
-    return { property };
+    const similar = all.filter((p) => p.id !== property.id).slice(0, 3);
+    return { property, similar };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -42,7 +46,8 @@ export const Route = createFileRoute("/properties/$propertyId")({
 const steps = ["Dates & guests", "Room", "Add-ons", "Your details"];
 
 function PropertyDetail() {
-  const { property } = Route.useLoaderData();
+  const { property, similar } = Route.useLoaderData();
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
@@ -50,19 +55,25 @@ function PropertyDetail() {
   const [children, setChildren] = useState(0);
   const [roomId, setRoomId] = useState(property.rooms[0]?.id ?? "");
   const [addonIds, setAddonIds] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
-  const [reference, setReference] = useState("");
 
   const room = property.rooms.find((r) => r.id === roomId);
   const selectedAddons = property.addons.filter((a) => addonIds.includes(a.id));
 
   const price = useMemo(
-    () => calculatePrice({ property, room, checkIn, checkOut, adults, children, addons: selectedAddons }),
-    [property, room, checkIn, checkOut, adults, children, selectedAddons],
+    () =>
+      calculatePrice({
+        transferPricePerPerson: property.transfer.pricePerPerson,
+        room,
+        checkIn,
+        checkOut,
+        adults,
+        children,
+        addons: selectedAddons,
+      }),
+    [property.transfer.pricePerPerson, room, checkIn, checkOut, adults, children, selectedAddons],
   );
 
   const datesValid = price.nights > 0;
-  const similar = properties.filter((p) => p.id !== property.id).slice(0, 3);
 
   const toggleAddon = (id: string) =>
     setAddonIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -316,14 +327,36 @@ function PropertyDetail() {
               {step === 3 && (
                 <form
                   className="space-y-3"
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    const ref = `MV-${Math.floor(10000 + Math.random() * 89999)}`;
-                    setReference(ref);
-                    setSubmitted(true);
-                    toast.success("Booking request submitted", {
-                      description: `Reference ${ref} — an agent will confirm shortly.`,
-                    });
+                    if (!room) return;
+                    const form = new FormData(e.currentTarget);
+                    const specialRequests = String(form.get("creq") ?? "").trim();
+                    try {
+                      const booking = await createBooking({
+                        data: {
+                          propertyId: property.id,
+                          roomId: room.id,
+                          checkIn,
+                          checkOut,
+                          adults,
+                          children,
+                          addonIds: selectedAddons.map((a) => a.id),
+                          customer: {
+                            fullName: String(form.get("cname") ?? ""),
+                            email: String(form.get("cemail") ?? ""),
+                            phone: String(form.get("cphone") ?? ""),
+                            country: String(form.get("ccountry") ?? ""),
+                          },
+                          ...(specialRequests ? { specialRequests } : {}),
+                        },
+                      });
+                      await navigate({ to: "/booking/success", search: { reference: booking.reference } });
+                    } catch (error) {
+                      toast.error("Booking could not be submitted", {
+                        description: error instanceof Error ? error.message : "Please try again.",
+                      });
+                    }
                   }}
                 >
                   <div className="space-y-1.5">
@@ -401,24 +434,6 @@ function PropertyDetail() {
           </div>
         </section>
       </main>
-
-      <Dialog open={submitted} onOpenChange={setSubmitted}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Booking request received</DialogTitle>
-            <DialogDescription>
-              Reference {reference}. We emailed a copy of your package to you, and our agents were notified on WhatsApp.
-              Expect a confirmation within a few hours.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="rounded-xl border bg-secondary/40 p-4 text-sm">
-            <p className="font-medium">{property.name}</p>
-            <p className="text-muted-foreground">{room?.name} · {price.nights} nights · {price.guests} guests</p>
-            <p className="mt-2 text-display text-xl font-semibold">{money(price.total)}</p>
-          </div>
-          <Button onClick={() => setSubmitted(false)}>Done</Button>
-        </DialogContent>
-      </Dialog>
 
       <SiteFooter />
     </div>

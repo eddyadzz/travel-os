@@ -1,4 +1,4 @@
-import type { Addon, Property, Room } from "./mock-data";
+import type { AddonDTO } from "@/lib/types";
 
 export type PriceBreakdown = {
   nights: number;
@@ -10,6 +10,14 @@ export type PriceBreakdown = {
   total: number;
 };
 
+type PriceRoom = {
+  nightlyRate: number;
+  baseGuests: number;
+  extraGuestRate: number;
+};
+
+type PriceAddon = { pricing: AddonDTO["pricing"]; price: number };
+
 export function nightsBetween(checkIn: string, checkOut: string) {
   if (!checkIn || !checkOut) return 0;
   const ms = new Date(checkOut).getTime() - new Date(checkIn).getTime();
@@ -17,16 +25,16 @@ export function nightsBetween(checkIn: string, checkOut: string) {
 }
 
 export function calculatePrice(opts: {
-  property: Property;
-  room?: Room | undefined;
+  transferPricePerPerson: number;
+  room?: PriceRoom | undefined;
   checkIn: string;
   checkOut: string;
   adults: number;
   children: number;
-  addons: Addon[];
+  addons: PriceAddon[];
   rooms?: number | undefined;
 }): PriceBreakdown {
-  const { property, room, checkIn, checkOut, adults, children, addons } = opts;
+  const { transferPricePerPerson, room, checkIn, checkOut, adults, children, addons } = opts;
   const roomCount = opts.rooms ?? 1;
   const nights = nightsBetween(checkIn, checkOut);
   const guests = adults + children;
@@ -38,7 +46,7 @@ export function calculatePrice(opts: {
   const accommodation = room.nightlyRate * nights * roomCount;
   const extra = Math.max(0, guests - room.baseGuests * roomCount);
   const extraGuests = extra * room.extraGuestRate * nights;
-  const transfers = property.transfer.pricePerPerson * guests;
+  const transfers = transferPricePerPerson * guests;
 
   const addonTotal = addons.reduce((sum, a) => {
     if (a.pricing === "Per Person") return sum + a.price * guests;
@@ -58,4 +66,8 @@ export function calculatePrice(opts: {
 }
 
 export const money = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);

@@ -9,12 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { atolls, properties, propertyTypes } from "@/lib/mock-data";
+import { listProperties } from "@/lib/api/properties";
 import { money } from "@/lib/pricing";
 
 type PropertySearch = { type: string };
 
 export const Route = createFileRoute("/properties/")({
+  loader: async () => {
+    const properties = await listProperties();
+    return { properties };
+  },
   validateSearch: (search: Record<string, unknown>): PropertySearch => ({
     type: typeof search["type"] === "string" ? (search["type"] as string) : "all",
   }),
@@ -34,12 +38,19 @@ export const Route = createFileRoute("/properties/")({
 });
 
 function PropertiesPage() {
+  const { properties } = Route.useLoaderData();
   const { type } = Route.useSearch();
   const navigate = useNavigate({ from: "/properties/" });
   const [query, setQuery] = useState("");
   const [atoll, setAtoll] = useState("all");
   const [maxPrice, setMaxPrice] = useState(1500);
   const [sort, setSort] = useState("recommended");
+
+  const propertyTypes = useMemo(
+    () => Array.from(new Set(properties.map((p) => p.type))).sort((a, b) => a.localeCompare(b)),
+    [properties],
+  );
+  const atolls = useMemo(() => Array.from(new Set(properties.map((p) => p.atoll))), [properties]);
 
   const activeType = type;
 
@@ -57,7 +68,7 @@ function PropertiesPage() {
     if (sort === "price-desc") return [...list].sort((a, b) => b.fromPrice - a.fromPrice);
     if (sort === "rating") return [...list].sort((a, b) => b.rating - a.rating);
     return list;
-  }, [activeType, atoll, maxPrice, query, sort]);
+  }, [properties, activeType, atoll, maxPrice, query, sort]);
 
   return (
     <div className="min-h-screen">

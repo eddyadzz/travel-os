@@ -2,9 +2,9 @@ import { Link } from "@tanstack/react-router";
 import { MapPin, Star, Plane } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { money } from "@/lib/pricing";
-import type { Property } from "@/lib/mock-data";
+import type { PropertyDTO } from "@/lib/types";
 
-export function PropertyCard({ property }: { property: Property }) {
+export function PropertyCard({ property }: { property: PropertyDTO }) {
   return (
     <Link
       to="/properties/$propertyId"

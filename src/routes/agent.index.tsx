@@ -6,10 +6,15 @@ import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { bookingRequests, type BookingRequest, type BookingStatus } from "@/lib/mock-data";
+import { listBookings, updateBookingStatus } from "@/lib/api/bookings";
+import type { BookingDTO, BookingStatus } from "@/lib/types";
 import { money } from "@/lib/pricing";
 
 export const Route = createFileRoute("/agent/")({
+  loader: async () => {
+    const bookings = await listBookings();
+    return { bookings };
+  },
   head: () => ({
     meta: [
       { title: "Agent Dashboard — Booking Requests | Ocean Atlas" },
@@ -23,20 +28,28 @@ export const Route = createFileRoute("/agent/")({
 });
 
 function AgentDashboard() {
-  const [requests, setRequests] = useState<BookingRequest[]>(bookingRequests);
+  const { bookings } = Route.useLoaderData();
+  const [requests, setRequests] = useState<BookingDTO[]>(bookings);
 
-  const setStatus = (id: string, status: BookingStatus) => {
-    setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
-    toast.success(`Request ${status.toLowerCase()}`, { description: "The customer has been notified by email." });
+  const setStatus = async (id: string, status: BookingStatus) => {
+    try {
+      const updated = await updateBookingStatus({ data: { id, status } });
+      setRequests((prev) => prev.map((r) => (r.id === id ? updated : r)));
+      toast.success(`Request ${status.toLowerCase()}`, { description: "The customer has been notified by email." });
+    } catch (error) {
+      toast.error("Could not update status", {
+        description: error instanceof Error ? error.message : "Please try again.",
+      });
+    }
   };
 
   const count = (s: BookingStatus) => requests.filter((r) => r.status === s).length;
-  const revenue = requests.filter((r) => r.status === "Confirmed").reduce((s, r) => s + r.total, 0);
+  const revenue = requests.filter((r) => r.status === "CONFIRMED").reduce((s, r) => s + r.total, 0);
 
   const stats = [
-    { icon: Inbox, label: "New requests", value: String(count("New")) },
-    { icon: CalendarCheck, label: "Confirmed", value: String(count("Confirmed")) },
-    { icon: Ban, label: "Rejected", value: String(count("Rejected")) },
+    { icon: Inbox, label: "New requests", value: String(count("NEW")) },
+    { icon: CalendarCheck, label: "Confirmed", value: String(count("CONFIRMED")) },
+    { icon: Ban, label: "Rejected", value: String(count("REJECTED")) },
     { icon: TrendingUp, label: "Confirmed value", value: money(revenue) },
   ];
 
@@ -64,16 +77,16 @@ function AgentDashboard() {
           ))}
         </div>
 
-        <Tabs defaultValue="New" className="mt-10">
+        <Tabs defaultValue="NEW" className="mt-10">
           <TabsList>
-            {(["New", "Confirmed", "Rejected"] as BookingStatus[]).map((s) => (
+            {(["NEW", "CONFIRMED", "REJECTED"] as BookingStatus[]).map((s) => (
               <TabsTrigger key={s} value={s}>
                 {s} ({count(s)})
               </TabsTrigger>
             ))}
           </TabsList>
 
-          {(["New", "Confirmed", "Rejected"] as BookingStatus[]).map((s) => (
+          {(["NEW", "CONFIRMED", "REJECTED"] as BookingStatus[]).map((s) => (
             <TabsContent key={s} value={s} className="mt-6 space-y-4">
               {requests.filter((r) => r.status === s).length === 0 && (
                 <div className="rounded-2xl border border-dashed bg-card p-12 text-center text-sm text-muted-foreground">
@@ -97,7 +110,9 @@ function AgentDashboard() {
                       </div>
                       <div className="text-right">
                         <p className="text-display text-2xl font-semibold">{money(r.total)}</p>
-                        <p className="text-xs text-muted-foreground">submitted {r.submittedAt}</p>
+                        <p className="text-xs text-muted-foreground">
+                          submitted {new Date(r.submittedAt).toLocaleString()}
+                        </p>
                       </div>
                     </div>
 
@@ -122,15 +137,15 @@ function AgentDashboard() {
                       </p>
                     )}
 
-                    {r.status === "New" && (
+                    {r.status === "NEW" && (
                       <div className="mt-5 flex flex-wrap gap-2">
-                        <Button size="sm" onClick={() => setStatus(r.id, "Confirmed")}>
+                        <Button size="sm" onClick={() => setStatus(r.id, "CONFIRMED")}>
                           <Check className="size-4" /> Confirm
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => toast("Modify request", { description: "Send the customer an amended quote." })}>
                           <Pencil className="size-4" /> Modify
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "Rejected")}>
+                        <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "REJECTED")}>
                           <X className="size-4" /> Reject
                         </Button>
                       </div>
@@ -147,9 +162,9 @@ function AgentDashboard() {
 
 function StatusBadge({ status }: { status: BookingStatus }) {
   const cls =
-    status === "Confirmed"
+    status === "CONFIRMED"
       ? "bg-success text-success-foreground hover:bg-success"
-      : status === "Rejected"
+      : status === "REJECTED"
         ? "bg-destructive text-destructive-foreground hover:bg-destructive"
         : "bg-warning text-warning-foreground hover:bg-warning";
   return <Badge className={cls}>{status}</Badge>;

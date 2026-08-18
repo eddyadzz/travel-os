@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as AgentIndexRouteImport } from './routes/agent.index'
 import { Route as AgentImportsRouteImport } from './routes/agent.imports'
+import { Route as BookingSuccessRouteImport } from './routes/booking.success'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as PropertiesPropertyIdRouteImport } from './routes/properties.$propertyId'
 
@@ -26,6 +28,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentIndexRoute = AgentIndexRouteImport.update({
   id: '/agent/',
   path: '/agent/',
@@ -34,6 +41,11 @@ const AgentIndexRoute = AgentIndexRouteImport.update({
 const AgentImportsRoute = AgentImportsRouteImport.update({
   id: '/agent/imports',
   path: '/agent/imports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingSuccessRoute = BookingSuccessRouteImport.update({
+  id: '/booking/success',
+  path: '/booking/success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
@@ -50,7 +62,9 @@ const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
+  '/search': typeof SearchRoute
   '/agent/imports': typeof AgentImportsRoute
+  '/booking/success': typeof BookingSuccessRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/agent/': typeof AgentIndexRoute
   '/properties/': typeof PropertiesIndexRoute
@@ -58,7 +72,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
+  '/search': typeof SearchRoute
   '/agent/imports': typeof AgentImportsRoute
+  '/booking/success': typeof BookingSuccessRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/agent': typeof AgentIndexRoute
   '/properties': typeof PropertiesIndexRoute
@@ -67,7 +83,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
+  '/search': typeof SearchRoute
   '/agent/imports': typeof AgentImportsRoute
+  '/booking/success': typeof BookingSuccessRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
   '/agent/': typeof AgentIndexRoute
   '/properties/': typeof PropertiesIndexRoute
@@ -77,7 +95,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/contact'
+    | '/search'
     | '/agent/imports'
+    | '/booking/success'
     | '/properties/$propertyId'
     | '/agent/'
     | '/properties/'
@@ -85,7 +105,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/contact'
+    | '/search'
     | '/agent/imports'
+    | '/booking/success'
     | '/properties/$propertyId'
     | '/agent'
     | '/properties'
@@ -93,7 +115,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/contact'
+    | '/search'
     | '/agent/imports'
+    | '/booking/success'
     | '/properties/$propertyId'
     | '/agent/'
     | '/properties/'
@@ -102,7 +126,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
+  SearchRoute: typeof SearchRoute
   AgentImportsRoute: typeof AgentImportsRoute
+  BookingSuccessRoute: typeof BookingSuccessRoute
   PropertiesPropertyIdRoute: typeof PropertiesPropertyIdRoute
   AgentIndexRoute: typeof AgentIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
@@ -124,6 +150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agent/': {
       id: '/agent/'
       path: '/agent'
@@ -136,6 +169,13 @@ declare module '@tanstack/react-router' {
       path: '/agent/imports'
       fullPath: '/agent/imports'
       preLoaderRoute: typeof AgentImportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/success': {
+      id: '/booking/success'
+      path: '/booking/success'
+      fullPath: '/booking/success'
+      preLoaderRoute: typeof BookingSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/properties/': {
@@ -158,7 +198,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
+  SearchRoute: SearchRoute,
   AgentImportsRoute: AgentImportsRoute,
+  BookingSuccessRoute: BookingSuccessRoute,
   PropertiesPropertyIdRoute: PropertiesPropertyIdRoute,
   AgentIndexRoute: AgentIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
