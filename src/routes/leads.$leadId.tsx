@@ -44,7 +44,7 @@ export const Route = createFileRoute("/leads/$leadId")({
     return { lead };
   },
   head: () => ({
-    meta: [{ title: "Lead detail | Ocean Atlas" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Lead detail | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
   }),
   component: LeadDetailPage,
 });

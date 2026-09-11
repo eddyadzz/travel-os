@@ -35,7 +35,7 @@ vi.mock("@tanstack/react-start", () => {
 
 const tenant = {
   id: "t1",
-  name: "Ocean Atlas",
+  name: "TravelOS by Boliflow",
   slug: "ocean-atlas",
   logoUrl: null,
   primaryColor: "#0f766e",
@@ -130,7 +130,7 @@ describe("getPublicSite", () => {
     const site = await getPublicSite();
     expect(site.content.heroHeadline).toBe("Custom headline");
     expect(site.content.heroEyebrow).toBe("Maldives specialists"); // default retained
-    expect(site.branding).toMatchObject({ name: "Ocean Atlas", primaryColor: "#0f766e" });
+    expect(site.branding).toMatchObject({ name: "TravelOS by Boliflow", primaryColor: "#0f766e" });
   });
 });
 
@@ -163,7 +163,7 @@ describe("getCmsAdmin", () => {
   it("returns content, branding and pages", async () => {
     const admin = await getCmsAdmin();
     expect(admin.content.heroHeadline).toBe("Custom headline");
-    expect(admin.branding.name).toBe("Ocean Atlas");
+    expect(admin.branding.name).toBe("TravelOS by Boliflow");
     expect(admin.pages).toHaveLength(1);
     expect(admin.pages[0].published).toBe(true);
   });

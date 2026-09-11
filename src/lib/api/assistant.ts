@@ -127,7 +127,7 @@ export async function recommendProperties(input: {
   const bestRec = top[0];
 
   const quoteDraft = bestRec
-    ? `Hi there,\n\nThank you for your enquiry for ${input.adults} adult${input.adults === 1 ? "" : "s"}${input.children ? ` and ${input.children} child${input.children === 1 ? "" : "ren"}` : ""} from ${input.checkIn} to ${input.checkOut} (${nights} nights).\n\nI'd recommend ${bestRec.name} in the ${bestRec.atoll} — rooms from ${money(bestRec.nightlyRate)}/night, estimated ${money(bestRec.estimatedTotal)} all-in. ${bestRec.reasons.join(". ")}.\n\nWould you like me to prepare a formal quote and check availability?\n\nBest regards,\nOcean Atlas`
+    ? `Hi there,\n\nThank you for your enquiry for ${input.adults} adult${input.adults === 1 ? "" : "s"}${input.children ? ` and ${input.children} child${input.children === 1 ? "" : "ren"}` : ""} from ${input.checkIn} to ${input.checkOut} (${nights} nights).\n\nI'd recommend ${bestRec.name} in the ${bestRec.atoll} — rooms from ${money(bestRec.nightlyRate)}/night, estimated ${money(bestRec.estimatedTotal)} all-in. ${bestRec.reasons.join(". ")}.\n\nWould you like me to prepare a formal quote and check availability?\n\nBest regards,\nTravelOS by Boliflow`
     : "No properties match the requested dates right now — let me check with our partners and get back to you.";
 
   const suggestion = bestRec
@@ -152,7 +152,7 @@ export async function getOperationsAdvice(): Promise<OperationsAdvice> {
       targetId: s.supplierId,
       title: `Follow up with ${s.name}`,
       detail: `Response time is slowing (${s.recentResponseHours ?? 0}h recently) — they may need a nudge.`,
-      draft: `Subject: Availability update — ${s.name}\n\nDear Reservations Team,\n\nWe've noticed your response times have slowed over the past two weeks. To keep your inventory live on our site, could you confirm the current availability for the next quarter?\n\nYou can update it directly in your supplier portal — no spreadsheets needed.\n\nKind regards,\nOcean Atlas`,
+      draft: `Subject: Availability update — ${s.name}\n\nDear Reservations Team,\n\nWe've noticed your response times have slowed over the past two weeks. To keep your inventory live on our site, could you confirm the current availability for the next quarter?\n\nYou can update it directly in your supplier portal — no spreadsheets needed.\n\nKind regards,\nTravelOS by Boliflow`,
     });
   }
 
@@ -163,7 +163,7 @@ export async function getOperationsAdvice(): Promise<OperationsAdvice> {
       targetId: c.supplierId,
       title: `Renew contract with ${c.name}`,
       detail: `Contract expires in ${c.expiryDays} day${c.expiryDays === 1 ? "" : "s"}.`,
-      draft: `Subject: Contract renewal — ${c.name}\n\nDear Partner,\n\nYour current agreement with Ocean Atlas expires in ${c.expiryDays} days. We'd love to continue working together — shall we set up a call to renew rates and terms?\n\nBest regards,\nOcean Atlas`,
+      draft: `Subject: Contract renewal — ${c.name}\n\nDear Partner,\n\nYour current agreement with TravelOS by Boliflow expires in ${c.expiryDays} days. We'd love to continue working together — shall we set up a call to renew rates and terms?\n\nBest regards,\nTravelOS by Boliflow`,
     });
   }
 
@@ -172,7 +172,7 @@ export async function getOperationsAdvice(): Promise<OperationsAdvice> {
       type: "deposit-followup",
       title: `Deposit overdue — ${d.reference}`,
       detail: `${d.customer} owes ${money(d.amount)} (${d.ageDays} days old).`,
-      draft: `Hi ${d.customer},\n\nJust a friendly reminder that the ${money(d.amount)} deposit for booking ${d.reference} is still outstanding. You can pay securely through your booking portal.\n\nLet us know if you need anything.\n\nBest regards,\nOcean Atlas`,
+      draft: `Hi ${d.customer},\n\nJust a friendly reminder that the ${money(d.amount)} deposit for booking ${d.reference} is still outstanding. You can pay securely through your booking portal.\n\nLet us know if you need anything.\n\nBest regards,\nTravelOS by Boliflow`,
     });
   }
 

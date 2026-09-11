@@ -40,8 +40,8 @@ export const Route = createFileRoute("/")({
       meta: [
         {
           title: content?.heroHeadline
-            ? `Ocean Atlas — ${content.heroHeadline}`
-            : "Ocean Atlas — Maldives Resorts, Guesthouses & Safari Boats",
+            ? `TravelOS by Boliflow — ${content.heroHeadline}`
+            : "TravelOS by Boliflow — Maldives Resorts, Guesthouses & Safari Boats",
         },
         {
           name: "description",
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/")({
             content?.heroSubheadline ??
             "Browse Maldives resorts, hotels, guesthouses and safari boats, build your package with add-ons and get an instant estimated price before you request a booking.",
         },
-        { property: "og:title", content: "Ocean Atlas — Maldives Travel Booking" },
+        { property: "og:title", content: "TravelOS by Boliflow — Maldives Travel Booking" },
         {
           property: "og:description",
           content:

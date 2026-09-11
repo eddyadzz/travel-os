@@ -2,7 +2,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, Prisma, $Enums } from "../src/generated/prisma/client";
 
-// Seeds the Ocean Atlas database with the same catalogue, add-ons, bookings
+// Seeds the TravelOS by Boliflow database with the same catalogue, add-ons, bookings
 // and imports the frontend currently serves from mock-data.ts.
 // Run with: npm run db:seed
 
@@ -669,7 +669,7 @@ async function main() {
   }
 
   const users = [
-    { email: "admin@oceanatlas.mv", fullName: "Ocean Atlas Admin", role: "SUPER_ADMIN" },
+    { email: "admin@oceanatlas.mv", fullName: "TravelOS Admin", role: "SUPER_ADMIN" },
     { email: "ahmed@oceanatlas.mv", fullName: "Ahmed Hassan", role: "BOOKING_AGENT" },
     { email: "fatima@oceanatlas.mv", fullName: "Fatima Naseer", role: "BOOKING_AGENT" },
   ] as const;

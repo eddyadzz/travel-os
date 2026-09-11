@@ -22,7 +22,7 @@ export const Route = createFileRoute("/booking/success")({
   },
   head: () => ({
     meta: [
-      { title: "Booking request received | Ocean Atlas" },
+      { title: "Booking request received | TravelOS by Boliflow" },
       { name: "robots", content: "noindex" },
     ],
   }),

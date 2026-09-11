@@ -65,7 +65,7 @@ export const Route = createFileRoute("/supplier/$token")({
     return { portal };
   },
   head: () => ({
-    meta: [{ title: "Supplier Portal | Ocean Atlas" }],
+    meta: [{ title: "Supplier Portal | TravelOS by Boliflow" }],
   }),
   component: SupplierPortalPage,
 });
@@ -110,7 +110,7 @@ function SupplierPortalPage() {
       <header className="surface-glass sticky top-0 z-50">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <span className="text-display text-lg font-semibold">Ocean Atlas</span>
+            <span className="text-display text-lg font-semibold">TravelOS by Boliflow</span>
             <Badge variant="outline">Supplier portal</Badge>
           </div>
           <span className="text-sm text-muted-foreground">{portal.supplier.name}</span>

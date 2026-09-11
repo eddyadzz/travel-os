@@ -81,16 +81,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#0f766e" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "Ocean Atlas" },
+      { name: "apple-mobile-web-app-title", content: "TravelOS by Boliflow" },
       { name: "mobile-web-app-capable", content: "yes" },
-      { title: "Ocean Atlas — Maldives Travel Booking" },
+      { title: "TravelOS by Boliflow — Maldives Travel Booking" },
       {
         name: "description",
         content:
           "Browse Maldives resorts, guesthouses and safari boats, build a package and request a booking.",
       },
-      { name: "author", content: "Ocean Atlas Travel" },
-      { property: "og:title", content: "Ocean Atlas — Maldives Travel Booking" },
+      { name: "author", content: "TravelOS by Boliflow" },
+      { property: "og:title", content: "TravelOS by Boliflow — Maldives Travel Booking" },
       {
         property: "og:description",
         content: "Build your Maldives package online and get an instant estimated price.",

@@ -30,7 +30,7 @@ export const Route = createFileRoute("/availability")({
   },
   head: () => ({
     meta: [
-      { title: "Availability Calendar | Ocean Atlas" },
+      { title: "Availability Calendar | TravelOS by Boliflow" },
       { name: "robots", content: "noindex" },
     ],
   }),

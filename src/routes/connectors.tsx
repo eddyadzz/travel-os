@@ -30,7 +30,7 @@ import type { ConnectorCatalog } from "@/lib/connectors/types";
 export const Route = createFileRoute("/connectors")({
   loader: async () => listChannels(),
   head: () => ({
-    meta: [{ title: "Supplier Channels | Ocean Atlas" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Supplier Channels | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
   }),
   component: ChannelsPage,
 });
@@ -172,7 +172,7 @@ function ChannelsPage() {
       <header className="surface-glass sticky top-0 z-50">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-display text-lg font-semibold">Ocean Atlas</span>
+            <span className="text-display text-lg font-semibold">TravelOS by Boliflow</span>
           </Link>
           <Link to="/agent" className="text-sm text-muted-foreground hover:text-foreground">
             Back to dashboard

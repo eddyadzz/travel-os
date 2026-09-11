@@ -32,7 +32,7 @@ import type { CmsPageDTO, PropertyDTO, SiteContentData } from "@/lib/types";
 export const Route = createFileRoute("/cms")({
   loader: async () => getCmsAdmin(),
   head: () => ({
-    meta: [{ title: "Website CMS | Ocean Atlas" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Website CMS | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
   }),
   component: CmsPage,
 });
@@ -217,7 +217,7 @@ function CmsPage() {
       <header className="surface-glass sticky top-0 z-50">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-display text-lg font-semibold">Ocean Atlas</span>
+            <span className="text-display text-lg font-semibold">TravelOS by Boliflow</span>
           </Link>
           <Link to="/agent" className="text-sm text-muted-foreground hover:text-foreground">
             Back to dashboard

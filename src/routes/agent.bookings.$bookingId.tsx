@@ -78,7 +78,7 @@ export const Route = createFileRoute("/agent/bookings/$bookingId")({
     return { booking, agents, payments, documents };
   },
   head: () => ({
-    meta: [{ title: "Booking detail | Ocean Atlas Agent" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Booking detail | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
   }),
   component: BookingDetailPage,
 });

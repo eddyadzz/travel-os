@@ -39,7 +39,7 @@ export const Route = createFileRoute("/track/$reference")({
   },
   head: () => ({
     meta: [
-      { title: "Track your booking | Ocean Atlas Maldives" },
+      { title: "Track your booking | TravelOS by Boliflow" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -88,7 +88,7 @@ function TrackPage() {
     <div className="min-h-screen bg-secondary/30 pb-16">
       <header className="surface-glass sticky top-0 z-50">
         <div className="mx-auto flex h-16 max-w-2xl items-center justify-between px-4">
-          <span className="text-display text-lg font-semibold">Ocean Atlas</span>
+          <span className="text-display text-lg font-semibold">TravelOS by Boliflow</span>
           <Badge variant="outline">{dto.reference}</Badge>
         </div>
       </header>

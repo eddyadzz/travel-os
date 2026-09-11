@@ -71,13 +71,13 @@ export const Route = createFileRoute("/search")({
   },
   head: () => ({
     meta: [
-      { title: "Search Available Stays by Date | Ocean Atlas Maldives" },
+      { title: "Search Available Stays by Date | TravelOS by Boliflow" },
       {
         name: "description",
         content:
           "Search Maldives resorts, guesthouses and safari boats by travel dates. Only properties with availability and a valid seasonal rate for your dates are shown.",
       },
-      { property: "og:title", content: "Search Available Stays | Ocean Atlas" },
+      { property: "og:title", content: "Search Available Stays | TravelOS by Boliflow" },
       {
         property: "og:description",
         content: "Find a Maldives stay with real availability for your dates.",

@@ -19,7 +19,8 @@ Documents → Travel → Finance → Analytics → Forecasting → Automation �
 | [Agent User Guide](agent-user-guide.md) | Bookings agents | Leads, quotes, bookings, operations, payments, documents, communications |
 | [Supplier Portal Guide](supplier-portal-guide.md) | Supplier staff | Inventory, rates, blackouts, promotions, packages, allocations |
 | [Client Owner Guide](client-owner-guide.md) | Agency owners | Revenue, profit, forecasting, agent performance, scorecards, command center |
-| [Deployment Guide](deployment-guide.md) | Deployment engineer | Server, DNS, SSL, PostgreSQL, Docker, email, readiness, troubleshooting |
+| [Deployment Guide](deployment-guide.md) | Deployment engineer | Docker stack (containers + compose) |
+| [Deployment Guide — Bare Metal](deployment-guide-bare-metal.md) | Deployment engineer | **nginx + PM2 + local PostgreSQL + Cloudflare origin certs** (current production setup) |
 | [Backup & Recovery Guide](backup-recovery-guide.md) | Deployment engineer | Backup, verification, restore, disaster recovery |
 | [First-Time Setup](first-time-setup.md) | Onboarding lead | The repeatable first-client playbook, end to end |
 

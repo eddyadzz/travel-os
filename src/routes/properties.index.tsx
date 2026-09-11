@@ -24,13 +24,13 @@ export const Route = createFileRoute("/properties/")({
   }),
   head: () => ({
     meta: [
-      { title: "Maldives Stays — Resorts, Guesthouses & Safari Boats | Ocean Atlas" },
+      { title: "Maldives Stays — Resorts, Guesthouses & Safari Boats | TravelOS by Boliflow" },
       {
         name: "description",
         content:
           "Compare Maldives resorts, hotels, guesthouses and liveaboard safari boats by atoll, transfer type and nightly rate.",
       },
-      { property: "og:title", content: "Maldives Stays | Ocean Atlas" },
+      { property: "og:title", content: "Maldives Stays | TravelOS by Boliflow" },
       { property: "og:description", content: "Compare Maldives properties by atoll, type and nightly rate." },
     ],
   }),

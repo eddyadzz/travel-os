@@ -34,7 +34,7 @@ export const Route = createFileRoute("/quotes")({
     return { quotes };
   },
   head: () => ({
-    meta: [{ title: "Quotes | Ocean Atlas" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Quotes | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
   }),
   component: QuotesPage,
 });
@@ -140,7 +140,7 @@ function QuotesPage() {
       <header className="surface-glass sticky top-0 z-50">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-display text-lg font-semibold">Ocean Atlas</span>
+            <span className="text-display text-lg font-semibold">TravelOS by Boliflow</span>
           </Link>
           <Link to="/agent" className="text-sm text-muted-foreground hover:text-foreground">
             Back to dashboard

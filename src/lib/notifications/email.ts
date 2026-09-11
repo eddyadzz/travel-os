@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
 const RESEND_API_KEY = process.env["RESEND_API_KEY"];
-const EMAIL_FROM = process.env["EMAIL_FROM"] ?? "Ocean Atlas <bookings@oceanatlas.mv>";
+const EMAIL_FROM = process.env["EMAIL_FROM"] ?? "TravelOS by Boliflow <bookings@oceanatlas.mv>";
 
 /**
  * Sends an email via Resend. Fails gracefully when no API key is configured

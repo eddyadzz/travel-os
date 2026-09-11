@@ -40,7 +40,7 @@ export const Route = createFileRoute("/properties/$propertyId")({
     if (!loaderData) {
       return {
         meta: [
-          { title: "Property unavailable | Ocean Atlas" },
+          { title: "Property unavailable | TravelOS by Boliflow" },
           { name: "robots", content: "noindex" },
         ],
       };
@@ -49,9 +49,9 @@ export const Route = createFileRoute("/properties/$propertyId")({
     const description = `${p.name} in ${p.location}, ${p.atoll}. ${p.transfer.method} transfer, rooms from ${money(p.fromPrice)} per night. Build a package and request a booking.`;
     return {
       meta: [
-        { title: `${p.name} — ${p.type} in ${p.atoll} | Ocean Atlas` },
+        { title: `${p.name} — ${p.type} in ${p.atoll} | TravelOS by Boliflow` },
         { name: "description", content: description },
-        { property: "og:title", content: `${p.name} | Ocean Atlas Maldives` },
+        { property: "og:title", content: `${p.name} | TravelOS by Boliflow` },
         { property: "og:description", content: description },
       ],
     };

@@ -6,7 +6,7 @@ export function SiteFooter() {
     <footer className="mt-24 border-t bg-secondary/40">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="text-display text-lg font-semibold">Ocean Atlas Travel</p>
+          <p className="text-display text-lg font-semibold">TravelOS by Boliflow</p>
           <p className="mt-3 text-sm text-muted-foreground">
             Maldives specialists since 2011. Build your package online, we confirm every reservation by hand.
           </p>
@@ -37,7 +37,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Ocean Atlas Travel Pvt Ltd, Malé, Maldives.
+        © {new Date().getFullYear()} TravelOS by Boliflow Pvt Ltd, Malé, Maldives.
       </div>
     </footer>
   );

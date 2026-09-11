@@ -7,13 +7,13 @@ function layout(html: string): string {
     <tr><td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;">
         <tr><td style="padding:24px;background:#0e7490;color:#ffffff;">
-          <strong style="font-size:18px;">Ocean Atlas Maldives</strong>
+          <strong style="font-size:18px;">TravelOS by Boliflow</strong>
         </td></tr>
         <tr><td style="padding:28px;color:#1f2937;font-size:15px;line-height:1.6;">
           ${html}
         </td></tr>
         <tr><td style="padding:20px;background:#f9fafb;color:#6b7280;font-size:12px;">
-          You received this email because you booked a stay with Ocean Atlas.
+          You received this email because you booked a stay with TravelOS by Boliflow.
         </td></tr>
       </table>
     </td></tr>

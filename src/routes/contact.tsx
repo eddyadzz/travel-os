@@ -12,13 +12,13 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Our Maldives Travel Agents | Ocean Atlas" },
+      { title: "Contact Our Maldives Travel Agents | TravelOS by Boliflow" },
       {
         name: "description",
         content:
-          "Reach the Ocean Atlas Maldives team by phone, WhatsApp or email for help with resorts, transfers and package planning.",
+          "Reach the TravelOS by Boliflow team by phone, WhatsApp or email for help with resorts, transfers and package planning.",
       },
-      { property: "og:title", content: "Contact Ocean Atlas Maldives" },
+      { property: "og:title", content: "Contact TravelOS by Boliflow" },
       { property: "og:description", content: "Phone, WhatsApp and email support from Malé-based Maldives specialists." },
     ],
   }),

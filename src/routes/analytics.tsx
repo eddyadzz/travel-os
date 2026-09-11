@@ -68,7 +68,7 @@ export const Route = createFileRoute("/analytics")({
   },
   head: () => ({
     meta: [
-      { title: "Analytics & Reporting | Ocean Atlas" },
+      { title: "Analytics & Reporting | TravelOS by Boliflow" },
       { name: "robots", content: "noindex" },
     ],
   }),

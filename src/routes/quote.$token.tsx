@@ -23,7 +23,7 @@ export const Route = createFileRoute("/quote/$token")({
   },
   head: () => ({
     meta: [
-      { title: "Your travel quote | Ocean Atlas Maldives" },
+      { title: "Your travel quote | TravelOS by Boliflow" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -104,7 +104,7 @@ function QuotePage() {
     <div className="min-h-screen bg-secondary/30 pb-16">
       <header className="surface-glass sticky top-0 z-50">
         <div className="mx-auto flex h-16 max-w-2xl items-center justify-between px-4">
-          <span className="text-display text-lg font-semibold">Ocean Atlas</span>
+          <span className="text-display text-lg font-semibold">TravelOS by Boliflow</span>
           {quote.reference && <Badge variant="outline">{quote.reference}</Badge>}
         </div>
       </header>

@@ -22,16 +22,16 @@ export const Route = createFileRoute("/destinations/$atoll")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Destination | Ocean Atlas" }] };
+      return { meta: [{ title: "Destination | TravelOS by Boliflow" }] };
     }
     return {
       meta: [
-        { title: `${loaderData.atoll} — Maldives Stays | Ocean Atlas` },
+        { title: `${loaderData.atoll} — Maldives Stays | TravelOS by Boliflow` },
         {
           name: "description",
           content: `Find ${loaderData.properties.length} resorts, guesthouses and safari boats in the ${loaderData.atoll}. Compare rates and plan your trip.`,
         },
-        { property: "og:title", content: `${loaderData.atoll} — Maldives Stays | Ocean Atlas` },
+        { property: "og:title", content: `${loaderData.atoll} — Maldives Stays | TravelOS by Boliflow` },
       ],
     };
   },

@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 
 export const Route = createFileRoute("/leads")({
   head: () => ({
-    meta: [{ title: "Leads & CRM | Ocean Atlas" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Leads & CRM | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
   }),
   component: LeadsLayout,
 });

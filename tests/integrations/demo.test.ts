@@ -31,7 +31,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockDb.tenant.findUnique.mockResolvedValue({
     id: "t1",
-    name: "Ocean Atlas",
+    name: "TravelOS by Boliflow",
     slug: "ocean-atlas",
     primaryColor: "#0f766e",
     accentColor: null,

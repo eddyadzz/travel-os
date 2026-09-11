@@ -78,12 +78,12 @@ export const Route = createFileRoute("/agent/")({
   },
   head: () => ({
     meta: [
-      { title: "Agent Dashboard — Booking Requests | Ocean Atlas" },
+      { title: "Agent Dashboard — Booking Requests | TravelOS by Boliflow" },
       {
         name: "description",
         content: "Manage, assign and track Maldives booking requests in one queue.",
       },
-      { property: "og:title", content: "Agent Dashboard | Ocean Atlas" },
+      { property: "og:title", content: "Agent Dashboard | TravelOS by Boliflow" },
       { property: "og:description", content: "Manage incoming Maldives booking requests." },
       { name: "robots", content: "noindex" },
     ],

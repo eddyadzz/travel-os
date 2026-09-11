@@ -1,6 +1,6 @@
 {
-  "name": "Ocean Atlas — Maldives Travel Booking",
-  "short_name": "Ocean Atlas",
+  "name": "TravelOS by Boliflow — Maldives Travel Booking",
+  "short_name": "TravelOS",
   "description": "Search Maldives resorts, guesthouses and safari boats, get instant quotes and book online.",
   "start_url": "/",
   "display": "standalone",

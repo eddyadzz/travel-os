@@ -13,13 +13,13 @@ export const Route = createFileRoute("/destinations/")({
   },
   head: () => ({
     meta: [
-      { title: "Maldives Destinations by Atoll | Ocean Atlas" },
+      { title: "Maldives Destinations by Atoll | TravelOS by Boliflow" },
       {
         name: "description",
         content:
           "Explore Maldives atolls — from North Malé atolls to the deep south. Compare resorts, guesthouses and safari boats by atoll.",
       },
-      { property: "og:title", content: "Maldives Destinations by Atoll | Ocean Atlas" },
+      { property: "og:title", content: "Maldives Destinations by Atoll | TravelOS by Boliflow" },
       {
         property: "og:description",
         content: "Compare Maldives stays by atoll, transfer type and nightly rate.",

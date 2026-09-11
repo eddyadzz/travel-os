@@ -12,7 +12,7 @@ export const Route = createFileRoute("/pages/$slug")({
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData ? `${loaderData.page.title} | Ocean Atlas` : "Ocean Atlas" },
+      { title: loaderData ? `${loaderData.page.title} | TravelOS by Boliflow` : "TravelOS by Boliflow" },
       ...(loaderData?.page.seoDescription
         ? [{ name: "description", content: loaderData.page.seoDescription }]
         : []),

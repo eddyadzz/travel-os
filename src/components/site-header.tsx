@@ -41,7 +41,7 @@ export function SiteHeader() {
               <Palmtree className="size-5" />
             )}
           </span>
-          <span className="text-display text-lg font-semibold">{brand?.name ?? "Ocean Atlas"}</span>
+          <span className="text-display text-lg font-semibold">{brand?.name ?? "TravelOS by Boliflow"}</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

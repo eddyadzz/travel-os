@@ -92,7 +92,7 @@ export function buildBookingIcs(booking: {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Ocean Atlas//Booking//EN",
+    "PRODID:-//TravelOS by Boliflow//Booking//EN",
     ...events,
     "END:VCALENDAR",
   ].join("\r\n");
@@ -161,7 +161,7 @@ export const getAgencyCalendarFeed = createServerFn({ method: "GET" })
     const ics = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
-      "PRODID:-//Ocean Atlas//Agency Calendar//EN",
+      "PRODID:-//TravelOS by Boliflow//Agency Calendar//EN",
       ...bookings.flatMap((b) => [
         icsEvent({
           uid: `arrival-${b.reference}`,

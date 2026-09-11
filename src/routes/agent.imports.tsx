@@ -34,12 +34,12 @@ export const Route = createFileRoute("/agent/imports")({
   },
   head: () => ({
     meta: [
-      { title: "Rate & Availability Imports | Ocean Atlas Agent" },
+      { title: "Rate & Availability Imports | TravelOS by Boliflow" },
       {
         name: "description",
         content: "Upload daily rate and availability spreadsheets for Maldives properties.",
       },
-      { property: "og:title", content: "Rate & Availability Imports | Ocean Atlas" },
+      { property: "og:title", content: "Rate & Availability Imports | TravelOS by Boliflow" },
       { property: "og:description", content: "Upload Excel or CSV rate and inventory files." },
       { name: "robots", content: "noindex" },
     ],
