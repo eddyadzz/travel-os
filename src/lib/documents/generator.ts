@@ -1,0 +1,300 @@
+import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
+import QRCode from "qrcode";
+import { money } from "@/lib/pricing";
+import type {
+  DocumentBookingData,
+  DocumentRow,
+  DocumentType,
+  GeneratedDocument,
+  QuoteDocumentData,
+} from "./types";
+
+const COLOR_PRIMARY = rgb(0.05, 0.45, 0.56); // ocean teal
+const COLOR_TEXT = rgb(0.13, 0.17, 0.23);
+const COLOR_MUTED = rgb(0.4, 0.45, 0.5);
+const COLOR_LINE = rgb(0.85, 0.88, 0.9);
+
+type Ctx = {
+  doc: PDFDocument;
+  font: PDFFont;
+  bold: PDFFont;
+  width: number;
+  y: number;
+  page: ReturnType<PDFDocument["addPage"]>;
+};
+
+function ctxNew(doc: PDFDocument, font: PDFFont, bold: PDFFont): Ctx {
+  const page = doc.addPage([595.28, 841.89]); // A4
+  const margin = 50;
+  return { doc, font, bold, width: 595.28 - margin * 2, y: 841.89 - margin, page };
+}
+
+function header(c: Ctx, title: string, subtitle: string, reference: string) {
+  c.page.drawText("OCEAN ATLAS MALDIVES", {
+    x: 50,
+    y: c.y,
+    size: 16,
+    font: c.bold,
+    color: COLOR_PRIMARY,
+  });
+  c.page.drawText("Travel Reservation", {
+    x: 50,
+    y: c.y - 16,
+    size: 10,
+    font: c.font,
+    color: COLOR_MUTED,
+  });
+  c.page.drawText(reference, { x: 545.28, y: c.y - 4, size: 11, font: c.bold, color: COLOR_TEXT });
+  c.y -= 42;
+  c.page.drawLine({
+    start: { x: 50, y: c.y },
+    end: { x: 545.28, y: c.y },
+    thickness: 1,
+    color: COLOR_LINE,
+  });
+  c.y -= 22;
+  c.page.drawText(title, { x: 50, y: c.y, size: 20, font: c.bold, color: COLOR_TEXT });
+  c.page.drawText(subtitle, { x: 50, y: c.y - 20, size: 11, font: c.font, color: COLOR_MUTED });
+  c.y -= 50;
+}
+
+function section(c: Ctx, label: string) {
+  c.page.drawText(label.toUpperCase(), {
+    x: 50,
+    y: c.y,
+    size: 10,
+    font: c.bold,
+    color: COLOR_PRIMARY,
+  });
+  c.y -= 20;
+}
+
+function rows(c: Ctx, data: DocumentRow[]) {
+  for (const row of data) {
+    c.page.drawText(row.label, { x: 50, y: c.y, size: 11, font: c.font, color: COLOR_MUTED });
+    c.page.drawText(row.value, { x: 300, y: c.y, size: 11, font: c.font, color: COLOR_TEXT });
+    c.y -= 20;
+  }
+  c.y -= 8;
+}
+
+function spacer(c: Ctx, h: number) {
+  c.y -= h;
+}
+
+async function drawQR(c: Ctx, url: string) {
+  const dataUrl = await QRCode.toDataURL(url, { width: 180, margin: 1 });
+  const png = dataUrl.replace(/^data:image\/png;base64,/, "");
+  const img = await c.doc.embedPng(png);
+  c.page.drawImage(img, { x: 50, y: 120, width: 100, height: 100 });
+  c.page.drawText("Scan for booking details", {
+    x: 50,
+    y: 100,
+    size: 9,
+    font: c.font,
+    color: COLOR_MUTED,
+  });
+}
+
+function footer(c: Ctx, text: string) {
+  c.page.drawText(text, { x: 50, y: 50, size: 9, font: c.font, color: COLOR_MUTED });
+}
+
+const LABELS: Record<DocumentType, string> = {
+  RESORT_VOUCHER: "Resort Voucher",
+  TRANSFER_VOUCHER: "Transfer Voucher",
+  INVOICE: "Invoice",
+  CONFIRMATION: "Guest Confirmation Letter",
+  ROOMING_LIST: "Rooming List",
+  QUOTE: "Travel Quote",
+};
+
+const SLUGS: Record<DocumentType, string> = {
+  RESORT_VOUCHER: "Resort-Voucher",
+  TRANSFER_VOUCHER: "Transfer-Voucher",
+  INVOICE: "Invoice",
+  CONFIRMATION: "Confirmation",
+  ROOMING_LIST: "Rooming-List",
+  QUOTE: "Quote",
+};
+
+export function documentFilename(type: DocumentType, reference: string, version: number): string {
+  return `${reference}_${SLUGS[type]}_v${version}.pdf`;
+}
+
+function commonRows(data: DocumentBookingData): DocumentRow[] {
+  const r: DocumentRow[] = [
+    { label: "Guest", value: data.customerName },
+    { label: "Resort", value: data.property },
+    { label: "Room", value: data.room },
+    { label: "Check-in", value: data.checkIn },
+    { label: "Check-out", value: data.checkOut },
+    { label: "Nights", value: String(data.nights) },
+    { label: "Guests", value: `${data.adults} adults, ${data.children} children` },
+  ];
+  if (data.boardBasis) r.push({ label: "Meal plan", value: data.boardBasis });
+  if (data.addons.length > 0) r.push({ label: "Add-ons", value: data.addons.join(", ") });
+  if (data.specialRequests) r.push({ label: "Special notes", value: data.specialRequests });
+  if (data.supplierReference)
+    r.push({ label: "Supplier reference", value: data.supplierReference });
+  return r;
+}
+
+async function render(
+  type: DocumentType,
+  data: DocumentBookingData,
+  extra: { sectionTitle: string; sectionRows: DocumentRow[]; amountRows?: DocumentRow[] },
+): Promise<GeneratedDocument> {
+  const doc = await PDFDocument.create();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const c = ctxNew(doc, font, bold);
+  const label = LABELS[type];
+
+  header(c, label, data.property, data.reference);
+  section(c, "Booking details");
+  rows(c, commonRows(data));
+  section(c, extra.sectionTitle);
+  rows(c, extra.sectionRows);
+  if (extra.amountRows) {
+    spacer(c, 6);
+    rows(c, extra.amountRows);
+  }
+  footer(c, `${label} · ${data.reference} · Generated by Ocean Atlas Maldives`);
+  await drawQR(c, data.portalUrl);
+  const bytes = await doc.save();
+  return { buffer: Buffer.from(bytes), filename: documentFilename(type, data.reference, 1) };
+}
+
+export async function generateResortVoucher(data: DocumentBookingData): Promise<GeneratedDocument> {
+  return render("RESORT_VOUCHER", data, {
+    sectionTitle: "Transfer",
+    sectionRows: [
+      { label: "Transfer type", value: `${data.transfer.method} (${data.transfer.duration})` },
+      { label: "Passengers", value: String(data.adults + data.children) },
+    ],
+  });
+}
+
+export async function generateTransferVoucher(
+  data: DocumentBookingData,
+): Promise<GeneratedDocument> {
+  return render("TRANSFER_VOUCHER", data, {
+    sectionTitle: "Transfer schedule",
+    sectionRows: [
+      { label: "Transfer type", value: data.transfer.method },
+      { label: "Estimated duration", value: data.transfer.duration },
+      { label: "Passenger count", value: String(data.adults + data.children) },
+      { label: "Airport", value: "Velana International Airport (MLE)" },
+    ],
+  });
+}
+
+export async function generateInvoice(data: DocumentBookingData): Promise<GeneratedDocument> {
+  return render("INVOICE", data, {
+    sectionTitle: "Payment summary",
+    sectionRows: [
+      { label: "Booking total", value: money(data.total) },
+      { label: "Payments received", value: money(data.paid) },
+      { label: "Outstanding balance", value: money(data.outstanding) },
+    ],
+  });
+}
+
+export async function generateConfirmation(data: DocumentBookingData): Promise<GeneratedDocument> {
+  return render("CONFIRMATION", data, {
+    sectionTitle: "Confirmation",
+    sectionRows: [
+      { label: "Booking reference", value: data.reference },
+      { label: "Guest", value: data.customerName },
+      { label: "Email", value: data.customerEmail },
+      { label: "Resort", value: data.property },
+    ],
+  });
+}
+
+export async function generateRoomingList(data: DocumentBookingData): Promise<GeneratedDocument> {
+  return render("ROOMING_LIST", data, {
+    sectionTitle: "Room assignment",
+    sectionRows: [
+      { label: "Guest", value: data.customerName },
+      { label: "Room", value: data.room },
+      { label: "Guests", value: `${data.adults} adults, ${data.children} children` },
+    ],
+  });
+}
+
+export async function generateDocument(
+  type: DocumentType,
+  data: DocumentBookingData,
+): Promise<GeneratedDocument> {
+  switch (type) {
+    case "RESORT_VOUCHER":
+      return generateResortVoucher(data);
+    case "TRANSFER_VOUCHER":
+      return generateTransferVoucher(data);
+    case "INVOICE":
+      return generateInvoice(data);
+    case "CONFIRMATION":
+      return generateConfirmation(data);
+    case "ROOMING_LIST":
+      return generateRoomingList(data);
+    case "QUOTE":
+      throw new Error("Use generateQuotePdf for quotes.");
+  }
+}
+
+export async function generateQuotePdf(data: QuoteDocumentData): Promise<GeneratedDocument> {
+  const doc = await PDFDocument.create();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const c = ctxNew(doc, font, bold);
+  const ref = data.reference;
+
+  header(c, "Travel Quote", data.property, ref);
+  section(c, "Guest & stay");
+  rows(c, [
+    { label: "Guest", value: data.customerName },
+    { label: "Resort", value: data.property },
+    { label: "Room", value: data.room },
+    { label: "Check-in", value: data.checkIn },
+    { label: "Check-out", value: data.checkOut },
+    { label: "Nights", value: String(data.nights) },
+    { label: "Guests", value: `${data.adults} adults, ${data.children} children` },
+    ...(data.addons.length > 0 ? [{ label: "Add-ons", value: data.addons.join(", ") }] : []),
+  ]);
+  section(c, "Price breakdown");
+  rows(c, [
+    { label: "Accommodation", value: money(data.breakdown.accommodation) },
+    ...(data.breakdown.extraGuests > 0
+      ? [{ label: "Extra guest charges", value: money(data.breakdown.extraGuests) }]
+      : []),
+    { label: "Transfers", value: money(data.breakdown.transfers) },
+    { label: "Add-ons", value: money(data.breakdown.addons) },
+  ]);
+  spacer(c, 6);
+  rows(c, [{ label: "Estimated total", value: money(data.breakdown.total) }]);
+  section(c, "Validity & next steps");
+  rows(c, [
+    { label: "Quote valid until", value: data.validUntil },
+    { label: "To book this stay", value: data.bookingLink },
+    ...(data.notes ? [{ label: "Notes", value: data.notes }] : []),
+  ]);
+  spacer(c, 6);
+  c.page.drawText(
+    "Payment: a deposit may be required to confirm. We accept bank transfer — details provided on confirmation.",
+    { x: 50, y: c.y, size: 10, font: c.font, color: COLOR_MUTED },
+  );
+  c.y -= 18;
+  c.page.drawText("Rates in USD, taxes included. This quote does not constitute a reservation.", {
+    x: 50,
+    y: c.y,
+    size: 10,
+    font: c.font,
+    color: COLOR_MUTED,
+  });
+  footer(c, `${ref} · Generated by Ocean Atlas Maldives`);
+  await drawQR(c, data.bookingLink);
+  const bytes = await doc.save();
+  return { buffer: Buffer.from(bytes), filename: `${ref}_Quote.pdf` };
+}

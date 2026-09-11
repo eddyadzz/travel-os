@@ -2,6 +2,8 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { startScheduler } from "./lib/api/scheduler";
+import { getDefaultTenantId, resolveTenantIdFromHost, runWithTenant } from "./lib/tenant-context";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -47,8 +49,17 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // Lazily start the in-process scheduler on the first request so the
+      // background job loop (retries, history, failure alerts) runs with the server.
+      void startScheduler().catch(() => {});
+      // Resolve the tenant for this request (custom domain / subdomain / default)
+      // and run the whole request inside that tenant context.
+      const host = request.headers.get("host") ?? undefined;
+      const tenantId =
+        (await resolveTenantIdFromHost(host).catch(() => null)) ??
+        (await getDefaultTenantId().catch(() => "tnt_default"));
       const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
+      const response = await runWithTenant(tenantId, async () => handler.fetch(request, env, ctx));
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
       console.error(error);

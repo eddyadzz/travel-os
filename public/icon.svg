@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Ocean Atlas">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <path d="M256 120c26 0 48 22 48 48v40h32c18 0 32 14 32 32v16c0 18-14 32-32 32h-16v40h16c35 0 64-29 64-64h24c35 0 64 29 64 64v16c0 35-29 64-64 64H160c-35 0-64-29-64-64v-16c0-35 29-64 64-64h24v-40h-16c-18 0-32-14-32-32v-16c0-18 14-32 32-32h32v-40c0-26 22-48 48-48h16z" fill="#fff" opacity="0.95"/>
+  <circle cx="256" cy="392" r="12" fill="#a7f3d0"/>
+</svg>

@@ -88,11 +88,27 @@ export const getImportJob = createServerFn({ method: "GET" })
   .handler(async ({ data: id }) => {
     const job = await db.importJob.findUnique({
       where: { id },
-      include: { errors: { orderBy: { rowNumber: "asc" } }, _count: { select: { errors: true } } },
+      include: {
+        errors: { orderBy: { rowNumber: "asc" } },
+        changes: { orderBy: { createdAt: "asc" } },
+        _count: { select: { errors: true } },
+      },
     });
     if (!job) return null;
     return {
       ...toImportJobDTO(job),
       errors: job.errors.map((e) => ({ rowNumber: e.rowNumber, message: e.message })),
+      changes: job.changes.map((c) => ({
+        id: c.id,
+        importJobId: c.importJobId,
+        type: c.type,
+        propertyId: c.propertyId,
+        roomId: c.roomId,
+        ...(c.date ? { date: c.date } : {}),
+        field: c.field,
+        ...(c.beforeValue !== null ? { beforeValue: c.beforeValue } : {}),
+        ...(c.afterValue !== null ? { afterValue: c.afterValue } : {}),
+        createdAt: c.createdAt.toISOString(),
+      })),
     };
   });

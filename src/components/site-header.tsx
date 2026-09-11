@@ -1,23 +1,47 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Palmtree, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { getPublicSite } from "@/lib/api/cms";
 
 const nav = [
   { to: "/", label: "Home" },
   { to: "/properties", label: "Stays" },
+  { to: "/destinations", label: "Destinations" },
   { to: "/contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
+  const [brand, setBrand] = useState<{ name: string; logoUrl?: string } | null>(null);
+
+  useEffect(() => {
+    getPublicSite()
+      .then((site) =>
+        setBrand({
+          name: site.branding.name,
+          ...(site.branding.logoUrl ? { logoUrl: site.branding.logoUrl } : {}),
+        }),
+      )
+      .catch(() => {});
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 surface-glass">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
           <span className="gradient-lagoon flex size-9 items-center justify-center rounded-xl text-primary-foreground">
-            <Palmtree className="size-5" />
+            {brand?.logoUrl ? (
+              <img
+                src={brand.logoUrl}
+                alt={`${brand.name} logo`}
+                className="size-9 rounded-xl object-contain"
+              />
+            ) : (
+              <Palmtree className="size-5" />
+            )}
           </span>
-          <span className="text-display text-lg font-semibold">Ocean Atlas</span>
+          <span className="text-display text-lg font-semibold">{brand?.name ?? "Ocean Atlas"}</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -39,7 +63,9 @@ export function SiteHeader() {
             <Link to="/agent">Agent login</Link>
           </Button>
           <Button asChild size="sm">
-            <Link to="/properties" search={{ type: "all" }}>Plan a trip</Link>
+            <Link to="/properties" search={{ type: "all" }}>
+              Plan a trip
+            </Link>
           </Button>
           <Sheet>
             <SheetTrigger asChild>

@@ -10,17 +10,79 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
+import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as AutomationRouteImport } from './routes/automation'
+import { Route as AvailabilityRouteImport } from './routes/availability'
+import { Route as CmsRouteImport } from './routes/cms'
+import { Route as CommandRouteImport } from './routes/command'
+import { Route as ConnectorsRouteImport } from './routes/connectors'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DeployRouteImport } from './routes/deploy'
+import { Route as FinanceRouteImport } from './routes/finance'
+import { Route as IntelligenceRouteImport } from './routes/intelligence'
+import { Route as JobsRouteImport } from './routes/jobs'
+import { Route as LeadsRouteImport } from './routes/leads'
+import { Route as OnboardRouteImport } from './routes/onboard'
+import { Route as QuotesRouteImport } from './routes/quotes'
+import { Route as RevenueRouteImport } from './routes/revenue'
+import { Route as ScorecardsRouteImport } from './routes/scorecards'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as SupplierUpdatesRouteImport } from './routes/supplier-updates'
+import { Route as AdminTenantsRouteImport } from './routes/admin.tenants'
 import { Route as AgentIndexRouteImport } from './routes/agent.index'
 import { Route as AgentImportsRouteImport } from './routes/agent.imports'
 import { Route as BookingSuccessRouteImport } from './routes/booking.success'
+import { Route as DestinationsIndexRouteImport } from './routes/destinations.index'
+import { Route as DestinationsAtollRouteImport } from './routes/destinations.$atoll'
+import { Route as LeadsIndexRouteImport } from './routes/leads.index'
+import { Route as LeadsLeadIdRouteImport } from './routes/leads.$leadId'
+import { Route as PagesSlugRouteImport } from './routes/pages.$slug'
 import { Route as PropertiesIndexRouteImport } from './routes/properties.index'
 import { Route as PropertiesPropertyIdRouteImport } from './routes/properties.$propertyId'
+import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
+import { Route as SupplierTokenRouteImport } from './routes/supplier.$token'
+import { Route as TrackReferenceRouteImport } from './routes/track.$reference'
+import { Route as AgentBookingsBookingIdRouteImport } from './routes/agent.bookings.$bookingId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutomationRoute = AutomationRouteImport.update({
+  id: '/automation',
+  path: '/automation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvailabilityRoute = AvailabilityRouteImport.update({
+  id: '/availability',
+  path: '/availability',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CmsRoute = CmsRouteImport.update({
+  id: '/cms',
+  path: '/cms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandRoute = CommandRouteImport.update({
+  id: '/command',
+  path: '/command',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectorsRoute = ConnectorsRouteImport.update({
+  id: '/connectors',
+  path: '/connectors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -28,9 +90,64 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeployRoute = DeployRouteImport.update({
+  id: '/deploy',
+  path: '/deploy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceRoute = FinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntelligenceRoute = IntelligenceRouteImport.update({
+  id: '/intelligence',
+  path: '/intelligence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobsRoute = JobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeadsRoute = LeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardRoute = OnboardRouteImport.update({
+  id: '/onboard',
+  path: '/onboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuotesRoute = QuotesRouteImport.update({
+  id: '/quotes',
+  path: '/quotes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevenueRoute = RevenueRouteImport.update({
+  id: '/revenue',
+  path: '/revenue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScorecardsRoute = ScorecardsRouteImport.update({
+  id: '/scorecards',
+  path: '/scorecards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupplierUpdatesRoute = SupplierUpdatesRouteImport.update({
+  id: '/supplier-updates',
+  path: '/supplier-updates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTenantsRoute = AdminTenantsRouteImport.update({
+  id: '/admin/tenants',
+  path: '/admin/tenants',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentIndexRoute = AgentIndexRouteImport.update({
@@ -48,6 +165,31 @@ const BookingSuccessRoute = BookingSuccessRouteImport.update({
   path: '/booking/success',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DestinationsIndexRoute = DestinationsIndexRouteImport.update({
+  id: '/destinations/',
+  path: '/destinations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DestinationsAtollRoute = DestinationsAtollRouteImport.update({
+  id: '/destinations/$atoll',
+  path: '/destinations/$atoll',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeadsIndexRoute = LeadsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LeadsRoute,
+} as any)
+const LeadsLeadIdRoute = LeadsLeadIdRouteImport.update({
+  id: '/$leadId',
+  path: '/$leadId',
+  getParentRoute: () => LeadsRoute,
+} as any)
+const PagesSlugRoute = PagesSlugRouteImport.update({
+  id: '/pages/$slug',
+  path: '/pages/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PropertiesIndexRoute = PropertiesIndexRouteImport.update({
   id: '/properties/',
   path: '/properties/',
@@ -58,80 +200,285 @@ const PropertiesPropertyIdRoute = PropertiesPropertyIdRouteImport.update({
   path: '/properties/$propertyId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuoteTokenRoute = QuoteTokenRouteImport.update({
+  id: '/quote/$token',
+  path: '/quote/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupplierTokenRoute = SupplierTokenRouteImport.update({
+  id: '/supplier/$token',
+  path: '/supplier/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackReferenceRoute = TrackReferenceRouteImport.update({
+  id: '/track/$reference',
+  path: '/track/$reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentBookingsBookingIdRoute = AgentBookingsBookingIdRouteImport.update({
+  id: '/agent/bookings/$bookingId',
+  path: '/agent/bookings/$bookingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/assistant': typeof AssistantRoute
+  '/automation': typeof AutomationRoute
+  '/availability': typeof AvailabilityRoute
+  '/cms': typeof CmsRoute
+  '/command': typeof CommandRoute
+  '/connectors': typeof ConnectorsRoute
   '/contact': typeof ContactRoute
+  '/deploy': typeof DeployRoute
+  '/finance': typeof FinanceRoute
+  '/intelligence': typeof IntelligenceRoute
+  '/jobs': typeof JobsRoute
+  '/leads': typeof LeadsRouteWithChildren
+  '/onboard': typeof OnboardRoute
+  '/quotes': typeof QuotesRoute
+  '/revenue': typeof RevenueRoute
+  '/scorecards': typeof ScorecardsRoute
   '/search': typeof SearchRoute
+  '/supplier-updates': typeof SupplierUpdatesRoute
+  '/admin/tenants': typeof AdminTenantsRoute
   '/agent/imports': typeof AgentImportsRoute
   '/booking/success': typeof BookingSuccessRoute
+  '/destinations/$atoll': typeof DestinationsAtollRoute
+  '/leads/$leadId': typeof LeadsLeadIdRoute
+  '/pages/$slug': typeof PagesSlugRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
+  '/quote/$token': typeof QuoteTokenRoute
+  '/supplier/$token': typeof SupplierTokenRoute
+  '/track/$reference': typeof TrackReferenceRoute
   '/agent/': typeof AgentIndexRoute
+  '/destinations/': typeof DestinationsIndexRoute
+  '/leads/': typeof LeadsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/agent/bookings/$bookingId': typeof AgentBookingsBookingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/assistant': typeof AssistantRoute
+  '/automation': typeof AutomationRoute
+  '/availability': typeof AvailabilityRoute
+  '/cms': typeof CmsRoute
+  '/command': typeof CommandRoute
+  '/connectors': typeof ConnectorsRoute
   '/contact': typeof ContactRoute
+  '/deploy': typeof DeployRoute
+  '/finance': typeof FinanceRoute
+  '/intelligence': typeof IntelligenceRoute
+  '/jobs': typeof JobsRoute
+  '/onboard': typeof OnboardRoute
+  '/quotes': typeof QuotesRoute
+  '/revenue': typeof RevenueRoute
+  '/scorecards': typeof ScorecardsRoute
   '/search': typeof SearchRoute
+  '/supplier-updates': typeof SupplierUpdatesRoute
+  '/admin/tenants': typeof AdminTenantsRoute
   '/agent/imports': typeof AgentImportsRoute
   '/booking/success': typeof BookingSuccessRoute
+  '/destinations/$atoll': typeof DestinationsAtollRoute
+  '/leads/$leadId': typeof LeadsLeadIdRoute
+  '/pages/$slug': typeof PagesSlugRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
+  '/quote/$token': typeof QuoteTokenRoute
+  '/supplier/$token': typeof SupplierTokenRoute
+  '/track/$reference': typeof TrackReferenceRoute
   '/agent': typeof AgentIndexRoute
+  '/destinations': typeof DestinationsIndexRoute
+  '/leads': typeof LeadsIndexRoute
   '/properties': typeof PropertiesIndexRoute
+  '/agent/bookings/$bookingId': typeof AgentBookingsBookingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analytics': typeof AnalyticsRoute
+  '/assistant': typeof AssistantRoute
+  '/automation': typeof AutomationRoute
+  '/availability': typeof AvailabilityRoute
+  '/cms': typeof CmsRoute
+  '/command': typeof CommandRoute
+  '/connectors': typeof ConnectorsRoute
   '/contact': typeof ContactRoute
+  '/deploy': typeof DeployRoute
+  '/finance': typeof FinanceRoute
+  '/intelligence': typeof IntelligenceRoute
+  '/jobs': typeof JobsRoute
+  '/leads': typeof LeadsRouteWithChildren
+  '/onboard': typeof OnboardRoute
+  '/quotes': typeof QuotesRoute
+  '/revenue': typeof RevenueRoute
+  '/scorecards': typeof ScorecardsRoute
   '/search': typeof SearchRoute
+  '/supplier-updates': typeof SupplierUpdatesRoute
+  '/admin/tenants': typeof AdminTenantsRoute
   '/agent/imports': typeof AgentImportsRoute
   '/booking/success': typeof BookingSuccessRoute
+  '/destinations/$atoll': typeof DestinationsAtollRoute
+  '/leads/$leadId': typeof LeadsLeadIdRoute
+  '/pages/$slug': typeof PagesSlugRoute
   '/properties/$propertyId': typeof PropertiesPropertyIdRoute
+  '/quote/$token': typeof QuoteTokenRoute
+  '/supplier/$token': typeof SupplierTokenRoute
+  '/track/$reference': typeof TrackReferenceRoute
   '/agent/': typeof AgentIndexRoute
+  '/destinations/': typeof DestinationsIndexRoute
+  '/leads/': typeof LeadsIndexRoute
   '/properties/': typeof PropertiesIndexRoute
+  '/agent/bookings/$bookingId': typeof AgentBookingsBookingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analytics'
+    | '/assistant'
+    | '/automation'
+    | '/availability'
+    | '/cms'
+    | '/command'
+    | '/connectors'
     | '/contact'
+    | '/deploy'
+    | '/finance'
+    | '/intelligence'
+    | '/jobs'
+    | '/leads'
+    | '/onboard'
+    | '/quotes'
+    | '/revenue'
+    | '/scorecards'
     | '/search'
+    | '/supplier-updates'
+    | '/admin/tenants'
     | '/agent/imports'
     | '/booking/success'
+    | '/destinations/$atoll'
+    | '/leads/$leadId'
+    | '/pages/$slug'
     | '/properties/$propertyId'
+    | '/quote/$token'
+    | '/supplier/$token'
+    | '/track/$reference'
     | '/agent/'
+    | '/destinations/'
+    | '/leads/'
     | '/properties/'
+    | '/agent/bookings/$bookingId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/analytics'
+    | '/assistant'
+    | '/automation'
+    | '/availability'
+    | '/cms'
+    | '/command'
+    | '/connectors'
     | '/contact'
+    | '/deploy'
+    | '/finance'
+    | '/intelligence'
+    | '/jobs'
+    | '/onboard'
+    | '/quotes'
+    | '/revenue'
+    | '/scorecards'
     | '/search'
+    | '/supplier-updates'
+    | '/admin/tenants'
     | '/agent/imports'
     | '/booking/success'
+    | '/destinations/$atoll'
+    | '/leads/$leadId'
+    | '/pages/$slug'
     | '/properties/$propertyId'
+    | '/quote/$token'
+    | '/supplier/$token'
+    | '/track/$reference'
     | '/agent'
+    | '/destinations'
+    | '/leads'
     | '/properties'
+    | '/agent/bookings/$bookingId'
   id:
     | '__root__'
     | '/'
+    | '/analytics'
+    | '/assistant'
+    | '/automation'
+    | '/availability'
+    | '/cms'
+    | '/command'
+    | '/connectors'
     | '/contact'
+    | '/deploy'
+    | '/finance'
+    | '/intelligence'
+    | '/jobs'
+    | '/leads'
+    | '/onboard'
+    | '/quotes'
+    | '/revenue'
+    | '/scorecards'
     | '/search'
+    | '/supplier-updates'
+    | '/admin/tenants'
     | '/agent/imports'
     | '/booking/success'
+    | '/destinations/$atoll'
+    | '/leads/$leadId'
+    | '/pages/$slug'
     | '/properties/$propertyId'
+    | '/quote/$token'
+    | '/supplier/$token'
+    | '/track/$reference'
     | '/agent/'
+    | '/destinations/'
+    | '/leads/'
     | '/properties/'
+    | '/agent/bookings/$bookingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnalyticsRoute: typeof AnalyticsRoute
+  AssistantRoute: typeof AssistantRoute
+  AutomationRoute: typeof AutomationRoute
+  AvailabilityRoute: typeof AvailabilityRoute
+  CmsRoute: typeof CmsRoute
+  CommandRoute: typeof CommandRoute
+  ConnectorsRoute: typeof ConnectorsRoute
   ContactRoute: typeof ContactRoute
+  DeployRoute: typeof DeployRoute
+  FinanceRoute: typeof FinanceRoute
+  IntelligenceRoute: typeof IntelligenceRoute
+  JobsRoute: typeof JobsRoute
+  LeadsRoute: typeof LeadsRouteWithChildren
+  OnboardRoute: typeof OnboardRoute
+  QuotesRoute: typeof QuotesRoute
+  RevenueRoute: typeof RevenueRoute
+  ScorecardsRoute: typeof ScorecardsRoute
   SearchRoute: typeof SearchRoute
+  SupplierUpdatesRoute: typeof SupplierUpdatesRoute
+  AdminTenantsRoute: typeof AdminTenantsRoute
   AgentImportsRoute: typeof AgentImportsRoute
   BookingSuccessRoute: typeof BookingSuccessRoute
+  DestinationsAtollRoute: typeof DestinationsAtollRoute
+  PagesSlugRoute: typeof PagesSlugRoute
   PropertiesPropertyIdRoute: typeof PropertiesPropertyIdRoute
+  QuoteTokenRoute: typeof QuoteTokenRoute
+  SupplierTokenRoute: typeof SupplierTokenRoute
+  TrackReferenceRoute: typeof TrackReferenceRoute
   AgentIndexRoute: typeof AgentIndexRoute
+  DestinationsIndexRoute: typeof DestinationsIndexRoute
   PropertiesIndexRoute: typeof PropertiesIndexRoute
+  AgentBookingsBookingIdRoute: typeof AgentBookingsBookingIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -143,6 +490,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/automation': {
+      id: '/automation'
+      path: '/automation'
+      fullPath: '/automation'
+      preLoaderRoute: typeof AutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/availability': {
+      id: '/availability'
+      path: '/availability'
+      fullPath: '/availability'
+      preLoaderRoute: typeof AvailabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cms': {
+      id: '/cms'
+      path: '/cms'
+      fullPath: '/cms'
+      preLoaderRoute: typeof CmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/command': {
+      id: '/command'
+      path: '/command'
+      fullPath: '/command'
+      preLoaderRoute: typeof CommandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connectors': {
+      id: '/connectors'
+      path: '/connectors'
+      fullPath: '/connectors'
+      preLoaderRoute: typeof ConnectorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -150,11 +546,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/deploy': {
+      id: '/deploy'
+      path: '/deploy'
+      fullPath: '/deploy'
+      preLoaderRoute: typeof DeployRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance': {
+      id: '/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof FinanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intelligence': {
+      id: '/intelligence'
+      path: '/intelligence'
+      fullPath: '/intelligence'
+      preLoaderRoute: typeof IntelligenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jobs': {
+      id: '/jobs'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof JobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leads': {
+      id: '/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof LeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboard': {
+      id: '/onboard'
+      path: '/onboard'
+      fullPath: '/onboard'
+      preLoaderRoute: typeof OnboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quotes': {
+      id: '/quotes'
+      path: '/quotes'
+      fullPath: '/quotes'
+      preLoaderRoute: typeof QuotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revenue': {
+      id: '/revenue'
+      path: '/revenue'
+      fullPath: '/revenue'
+      preLoaderRoute: typeof RevenueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scorecards': {
+      id: '/scorecards'
+      path: '/scorecards'
+      fullPath: '/scorecards'
+      preLoaderRoute: typeof ScorecardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/search': {
       id: '/search'
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supplier-updates': {
+      id: '/supplier-updates'
+      path: '/supplier-updates'
+      fullPath: '/supplier-updates'
+      preLoaderRoute: typeof SupplierUpdatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/tenants': {
+      id: '/admin/tenants'
+      path: '/admin/tenants'
+      fullPath: '/admin/tenants'
+      preLoaderRoute: typeof AdminTenantsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent/': {
@@ -178,6 +651,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/destinations/': {
+      id: '/destinations/'
+      path: '/destinations'
+      fullPath: '/destinations/'
+      preLoaderRoute: typeof DestinationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/destinations/$atoll': {
+      id: '/destinations/$atoll'
+      path: '/destinations/$atoll'
+      fullPath: '/destinations/$atoll'
+      preLoaderRoute: typeof DestinationsAtollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leads/': {
+      id: '/leads/'
+      path: '/'
+      fullPath: '/leads/'
+      preLoaderRoute: typeof LeadsIndexRouteImport
+      parentRoute: typeof LeadsRoute
+    }
+    '/leads/$leadId': {
+      id: '/leads/$leadId'
+      path: '/$leadId'
+      fullPath: '/leads/$leadId'
+      preLoaderRoute: typeof LeadsLeadIdRouteImport
+      parentRoute: typeof LeadsRoute
+    }
+    '/pages/$slug': {
+      id: '/pages/$slug'
+      path: '/pages/$slug'
+      fullPath: '/pages/$slug'
+      preLoaderRoute: typeof PagesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/properties/': {
       id: '/properties/'
       path: '/properties'
@@ -192,18 +700,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesPropertyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quote/$token': {
+      id: '/quote/$token'
+      path: '/quote/$token'
+      fullPath: '/quote/$token'
+      preLoaderRoute: typeof QuoteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supplier/$token': {
+      id: '/supplier/$token'
+      path: '/supplier/$token'
+      fullPath: '/supplier/$token'
+      preLoaderRoute: typeof SupplierTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track/$reference': {
+      id: '/track/$reference'
+      path: '/track/$reference'
+      fullPath: '/track/$reference'
+      preLoaderRoute: typeof TrackReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent/bookings/$bookingId': {
+      id: '/agent/bookings/$bookingId'
+      path: '/agent/bookings/$bookingId'
+      fullPath: '/agent/bookings/$bookingId'
+      preLoaderRoute: typeof AgentBookingsBookingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface LeadsRouteChildren {
+  LeadsLeadIdRoute: typeof LeadsLeadIdRoute
+  LeadsIndexRoute: typeof LeadsIndexRoute
+}
+
+const LeadsRouteChildren: LeadsRouteChildren = {
+  LeadsLeadIdRoute: LeadsLeadIdRoute,
+  LeadsIndexRoute: LeadsIndexRoute,
+}
+
+const LeadsRouteWithChildren = LeadsRoute._addFileChildren(LeadsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnalyticsRoute: AnalyticsRoute,
+  AssistantRoute: AssistantRoute,
+  AutomationRoute: AutomationRoute,
+  AvailabilityRoute: AvailabilityRoute,
+  CmsRoute: CmsRoute,
+  CommandRoute: CommandRoute,
+  ConnectorsRoute: ConnectorsRoute,
   ContactRoute: ContactRoute,
+  DeployRoute: DeployRoute,
+  FinanceRoute: FinanceRoute,
+  IntelligenceRoute: IntelligenceRoute,
+  JobsRoute: JobsRoute,
+  LeadsRoute: LeadsRouteWithChildren,
+  OnboardRoute: OnboardRoute,
+  QuotesRoute: QuotesRoute,
+  RevenueRoute: RevenueRoute,
+  ScorecardsRoute: ScorecardsRoute,
   SearchRoute: SearchRoute,
+  SupplierUpdatesRoute: SupplierUpdatesRoute,
+  AdminTenantsRoute: AdminTenantsRoute,
   AgentImportsRoute: AgentImportsRoute,
   BookingSuccessRoute: BookingSuccessRoute,
+  DestinationsAtollRoute: DestinationsAtollRoute,
+  PagesSlugRoute: PagesSlugRoute,
   PropertiesPropertyIdRoute: PropertiesPropertyIdRoute,
+  QuoteTokenRoute: QuoteTokenRoute,
+  SupplierTokenRoute: SupplierTokenRoute,
+  TrackReferenceRoute: TrackReferenceRoute,
   AgentIndexRoute: AgentIndexRoute,
+  DestinationsIndexRoute: DestinationsIndexRoute,
   PropertiesIndexRoute: PropertiesIndexRoute,
+  AgentBookingsBookingIdRoute: AgentBookingsBookingIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

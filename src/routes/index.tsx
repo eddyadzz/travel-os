@@ -26,28 +26,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { listProperties } from "@/lib/api/properties";
+import { getPublicSite } from "@/lib/api/cms";
+import type { SiteContentData } from "@/lib/types";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const properties = await listProperties();
-    return { properties };
+    const [properties, site] = await Promise.all([listProperties(), getPublicSite()]);
+    return { properties, site };
   },
-  head: () => ({
-    meta: [
-      { title: "Ocean Atlas — Maldives Resorts, Guesthouses & Safari Boats" },
-      {
-        name: "description",
-        content:
-          "Browse Maldives resorts, hotels, guesthouses and safari boats, build your package with add-ons and get an instant estimated price before you request a booking.",
-      },
-      { property: "og:title", content: "Ocean Atlas — Maldives Travel Booking" },
-      {
-        property: "og:description",
-        content:
-          "Build your Maldives package online and get an instant estimate. Agents confirm every reservation.",
-      },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const content = loaderData?.site?.content;
+    return {
+      meta: [
+        {
+          title: content?.heroHeadline
+            ? `Ocean Atlas — ${content.heroHeadline}`
+            : "Ocean Atlas — Maldives Resorts, Guesthouses & Safari Boats",
+        },
+        {
+          name: "description",
+          content:
+            content?.heroSubheadline ??
+            "Browse Maldives resorts, hotels, guesthouses and safari boats, build your package with add-ons and get an instant estimated price before you request a booking.",
+        },
+        { property: "og:title", content: "Ocean Atlas — Maldives Travel Booking" },
+        {
+          property: "og:description",
+          content:
+            "Build your Maldives package online and get an instant estimate. Agents confirm every reservation.",
+        },
+      ],
+    };
+  },
   component: Index,
 });
 
@@ -60,14 +70,19 @@ const typeIcons = {
 const typeOrder = ["Resort", "Hotel", "Guesthouse", "Safari Boat"] as const;
 
 function Index() {
-  const { properties } = Route.useLoaderData();
+  const { properties, site } = Route.useLoaderData();
+  const content: SiteContentData = site.content;
   const navigate = useNavigate();
   const [type, setType] = useState("all");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
-  const featured = properties.filter((p) => p.featured);
+  const featured = content.featuredPropertySlugs?.length
+    ? content.featuredPropertySlugs
+        .map((slug) => properties.find((p) => p.slug === slug))
+        .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    : properties.filter((p) => p.featured);
   const propertyTypes = typeOrder.filter((t) => properties.some((p) => p.type === t));
 
   return (
@@ -88,15 +103,10 @@ function Index() {
             <div className="mx-auto w-full max-w-6xl px-4">
               <div className="max-w-2xl text-primary-foreground">
                 <p className="text-sm uppercase tracking-[0.25em] opacity-90">
-                  Maldives specialists
+                  {content.heroEyebrow}
                 </p>
-                <h1 className="mt-4 text-4xl leading-[1.05] sm:text-6xl">
-                  Build your Maldives escape, priced before you ask.
-                </h1>
-                <p className="mt-5 max-w-xl text-base opacity-90">
-                  Pick an island, choose your villa, add spa, diving and transfers — see the
-                  estimate instantly and send one complete request to our agents.
-                </p>
+                <h1 className="mt-4 text-4xl leading-[1.05] sm:text-6xl">{content.heroHeadline}</h1>
+                <p className="mt-5 max-w-xl text-base opacity-90">{content.heroSubheadline}</p>
               </div>
 
               <div className="mt-10 rounded-2xl border bg-card p-4 shadow-[var(--shadow-lift)] sm:p-5">
@@ -243,6 +253,26 @@ function Index() {
             </div>
           </div>
         </section>
+
+        {content.testimonials && content.testimonials.length > 0 && (
+          <section className="mx-auto max-w-6xl px-4 py-16">
+            <h2 className="text-3xl">What guests say</h2>
+            <div className="mt-8 grid gap-6 md:grid-cols-3">
+              {content.testimonials.map((t, i) => (
+                <figure
+                  key={i}
+                  className="rounded-2xl border bg-card p-6 shadow-[var(--shadow-soft)]"
+                >
+                  <blockquote className="text-muted-foreground">“{t.quote}”</blockquote>
+                  <figcaption className="mt-4 text-sm">
+                    <span className="font-semibold">{t.name}</span>
+                    {t.role && <span className="text-muted-foreground"> · {t.role}</span>}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <SiteFooter />

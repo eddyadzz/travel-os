@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient, Prisma } from "../src/generated/prisma/client";
+import { PrismaClient, Prisma, $Enums } from "../src/generated/prisma/client";
 
 // Seeds the Ocean Atlas database with the same catalogue, add-ons, bookings
 // and imports the frontend currently serves from mock-data.ts.
@@ -260,7 +260,33 @@ const properties = [
   },
 ] as const;
 
-const bookings = [
+type SeedBooking = {
+  reference: string;
+  customer: { fullName: string; email: string; phone: string; country: string };
+  propertySlug: string;
+  roomName: string;
+  checkIn: string;
+  checkOut: string;
+  adults: number;
+  children: number;
+  total: number;
+  status: $Enums.BookingStatus;
+  addonNames: string[];
+  specialRequests?: string;
+  submittedAt: string;
+  assignedAgentEmail?: string;
+  supplierReference?: string;
+  supplierStatus?: string;
+  notes?: string[];
+  conversation?: Array<{
+    senderType: $Enums.MessageSenderType;
+    senderName: string;
+    message: string;
+    isInternal?: boolean;
+  }>;
+};
+
+const bookings: SeedBooking[] = [
   {
     reference: "MV-24081",
     customer: {
@@ -280,6 +306,33 @@ const bookings = [
     addonNames: ["Sunset Spa Ritual", "Romantic Sandbank Dinner"],
     specialRequests: "Honeymoon trip — sea view room if possible, late check-out.",
     submittedAt: "2026-08-16T10:00:00.000Z",
+    assignedAgentEmail: "ahmed@oceanatlas.mv",
+    supplierReference: "VELAA-2026-8812",
+    supplierStatus: "Requested",
+    notes: [
+      "Customer prefers upper deck — will confirm with resort.",
+      "Supplier offered overwater sunrise upgrade for +$120/night.",
+    ],
+    conversation: [
+      {
+        senderType: "CUSTOMER",
+        senderName: "Amelia Rossi",
+        message: "Hi — can we get a room with a sunset view?",
+      },
+      {
+        senderType: "AGENT",
+        senderName: "Ahmed Hassan",
+        message:
+          "We've requested availability from the resort — the sunrise-facing villas are confirmed.",
+      },
+      { senderType: "CUSTOMER", senderName: "Amelia Rossi", message: "That's perfect, thank you!" },
+      {
+        senderType: "AGENT",
+        senderName: "Ahmed Hassan",
+        message: "Waiting on seaplane schedule confirmation — will share shortly.",
+        isInternal: true,
+      },
+    ],
   },
   {
     reference: "MV-24080",
@@ -299,6 +352,7 @@ const bookings = [
     status: "NEW",
     addonNames: ["3-Dive Discovery Package"],
     submittedAt: "2026-08-16T05:00:00.000Z",
+    notes: ["Waiting for liveaboard availability confirmation."],
   },
   {
     reference: "MV-24078",
@@ -318,6 +372,10 @@ const bookings = [
     status: "CONFIRMED",
     addonNames: ["Dolphin Cruise Excursion"],
     submittedAt: "2026-08-15T09:00:00.000Z",
+    assignedAgentEmail: "ahmed@oceanatlas.mv",
+    supplierReference: "KAANI-2026-4401",
+    supplierStatus: "Confirmed",
+    notes: ["Payment received via card — booking confirmed."],
   },
   {
     reference: "MV-24075",
@@ -337,6 +395,8 @@ const bookings = [
     status: "CONFIRMED",
     addonNames: [],
     submittedAt: "2026-08-14T09:00:00.000Z",
+    assignedAgentEmail: "fatima@oceanatlas.mv",
+    notes: ["Customer requested late checkout; guesthouse agreed."],
   },
   {
     reference: "MV-24070",
@@ -353,22 +413,156 @@ const bookings = [
     adults: 2,
     children: 1,
     total: 7480,
-    status: "REJECTED",
+    status: "CANCELLED",
     addonNames: ["In-Villa Breakfast Setup"],
     specialRequests: "Peak season — no availability for the requested villa category.",
     submittedAt: "2026-08-12T09:00:00.000Z",
+    assignedAgentEmail: "fatima@oceanatlas.mv",
+    notes: [
+      "No availability for requested villa category in peak season — cancelled at customer request.",
+    ],
+  },
+];
+
+const suppliers = [
+  {
+    name: "Velaa Private Island",
+    type: "RESORT",
+    email: "reservations@velaaisland.com",
+    phone: "+960 660 8800",
+    contactPerson: "Reservations Team",
+  },
+  {
+    name: "Kaani Beach Hotel",
+    type: "HOTEL",
+    email: "bookings@kaanibeach.com",
+    phone: "+960 664 4424",
+    contactPerson: "Front Office",
+  },
+  {
+    name: "Dhigurah Sands",
+    type: "GUESTHOUSE",
+    email: "stay@dhigurahsands.mv",
+    phone: "+960 999 2222",
+    contactPerson: "Ismail",
+  },
+  {
+    name: "Blue Horizon Cruises",
+    type: "SAFARI",
+    email: "charter@bluehorizon.mv",
+    phone: "+960 777 0011",
+    contactPerson: "Captain",
+  },
+  {
+    name: "Trans Maldivian Airways",
+    type: "TRANSFER",
+    email: "reservations@transmaldivian.aero",
+    phone: "+960 331 0000",
+    contactPerson: "Reservations",
+  },
+  {
+    name: "Ocean Dive Centre",
+    type: "DIVE_CENTER",
+    email: "dive@oceandive.mv",
+    phone: "+960 770 5566",
+    contactPerson: "Dive Master",
+  },
+] as const;
+
+const leads = [
+  {
+    source: "INSTAGRAM",
+    status: "QUOTED",
+    fullName: "Mia Thompson",
+    email: "mia.thompson@mail.com",
+    phone: "+1 415 555 0101",
+    destination: "Velaa Lagoon Resort & Spa",
+    checkIn: "2026-11-20",
+    checkOut: "2026-11-27",
+    adults: 2,
+    children: 0,
+    notes: "Honeymoon — interested in overwater villa.",
+    quote: {
+      totalPrice: 8200,
+      validUntil: "2026-09-30",
+      notes: "High season, overwater villa, half board",
+    },
+  },
+  {
+    source: "WHATSAPP",
+    status: "NEW",
+    fullName: "Omar Farouk",
+    email: "omar.farouk@mail.com",
+    phone: "+971 50 555 0199",
+    destination: "Blue Horizon Safari Boat",
+    checkIn: "2026-12-02",
+    checkOut: "2026-12-09",
+    adults: 2,
+    children: 0,
+    notes: "Liveaboard diver — wants 7 nights with dive package.",
+  },
+  {
+    source: "WEBSITE",
+    status: "FOLLOW_UP",
+    fullName: "Elena Petrova",
+    email: "elena.petrova@mail.ru",
+    phone: "+7 999 555 0142",
+    destination: "Kaani Beach Hotel",
+    checkIn: "2026-10-05",
+    checkOut: "2026-10-12",
+    adults: 2,
+    children: 2,
+    notes: "Family trip — needs 2 connecting rooms.",
+    quote: { totalPrice: 2100, validUntil: "2026-09-15" },
+    task: { dueAt: "2026-08-25", note: "Follow up on quote — awaiting response" },
+  },
+  {
+    source: "REFERRAL",
+    status: "WON",
+    fullName: "James Carter",
+    email: "james.carter@mail.com",
+    phone: "+44 20 5555 0130",
+    destination: "Dhigurah Sands Guesthouse",
+    checkIn: "2026-09-10",
+    checkOut: "2026-09-15",
+    adults: 2,
+    children: 1,
+    notes: "Referred by a past guest.",
+    bookingRef: "MV-24075",
+    quote: { totalPrice: 1535, validUntil: "2026-08-30" },
+  },
+  {
+    source: "PHONE",
+    status: "LOST",
+    fullName: "Lucia Fernandez",
+    email: "lucia.fernandez@mail.es",
+    phone: "+34 611 555 0177",
+    destination: "Velaa Lagoon Resort & Spa",
+    checkIn: "2026-12-24",
+    checkOut: "2026-12-31",
+    adults: 2,
+    children: 0,
+    notes: "Too expensive — went elsewhere.",
   },
 ] as const;
 
 async function main() {
   console.log("Clearing existing data…");
+  await db.leadTask.deleteMany();
+  await db.quote.deleteMany();
+  await db.lead.deleteMany();
   await db.bookingAddon.deleteMany();
+  await db.bookingDocument.deleteMany();
+  await db.supplierConfirmation.deleteMany();
+  await db.contractRate.deleteMany();
+  await db.supplierContact.deleteMany();
   await db.booking.deleteMany();
   await db.availability.deleteMany();
   await db.rate.deleteMany();
   await db.addon.deleteMany();
   await db.room.deleteMany();
   await db.property.deleteMany();
+  await db.supplier.deleteMany();
   await db.customer.deleteMany();
   await db.user.deleteMany();
 
@@ -378,8 +572,35 @@ async function main() {
     addons.set(a.name, created.id);
   }
 
+  // Suppliers must exist before properties (Property.supplierId).
+  const supplierIds = new Map<string, string>();
+  for (const s of suppliers) {
+    const supplier = await db.supplier.create({ data: s });
+    supplierIds.set(s.name.toLowerCase(), supplier.id);
+    await db.supplierContact.createMany({
+      data: [
+        {
+          supplierId: supplier.id,
+          name: "Reservations",
+          role: "Reservations",
+          email: s.email,
+          phone: s.phone,
+        },
+        { supplierId: supplier.id, name: "Accounts", role: "Finance", email: s.email },
+      ],
+    });
+  }
+
   const propertyIds = new Map<string, string>();
   const roomIds = new Map<string, { propertyId: string; roomId: string }>();
+  const bookingIds = new Map<string, string>();
+
+  const supplierByProperty: Record<string, string> = {
+    "velaa-lagoon-resort": "velaa private island",
+    "kaani-beach-hotel": "kaani beach hotel",
+    "dhigurah-sands": "dhigurah sands",
+    "blue-horizon-safari": "blue horizon cruises",
+  };
 
   for (const p of properties) {
     const property = await db.property.create({
@@ -398,6 +619,9 @@ async function main() {
         transferPricePerPerson: p.transferPricePerPerson,
         featured: p.featured,
         rating: p.rating,
+        ...(supplierByProperty[p.slug]
+          ? { supplierId: supplierIds.get(supplierByProperty[p.slug]) ?? null }
+          : {}),
         addons: { connect: p.addonIds.map((id) => ({ id })) },
       },
     });
@@ -444,6 +668,25 @@ async function main() {
     }
   }
 
+  const users = [
+    { email: "admin@oceanatlas.mv", fullName: "Ocean Atlas Admin", role: "SUPER_ADMIN" },
+    { email: "ahmed@oceanatlas.mv", fullName: "Ahmed Hassan", role: "BOOKING_AGENT" },
+    { email: "fatima@oceanatlas.mv", fullName: "Fatima Naseer", role: "BOOKING_AGENT" },
+  ] as const;
+
+  const agentIds = new Map<string, string>();
+  for (const u of users) {
+    const user = await db.user.create({
+      data: {
+        email: u.email,
+        fullName: u.fullName,
+        passwordHash: "REPLACE_WITH_BCRYPT_HASH",
+        role: u.role,
+      },
+    });
+    agentIds.set(u.email, user.id);
+  }
+
   for (const b of bookings) {
     const propertyId = propertyIds.get(b.propertySlug);
     const room = roomIds.get(`${b.propertySlug}:${b.roomName}`);
@@ -462,13 +705,18 @@ async function main() {
       .map((name) => ({ name, id: addons.get(name) }))
       .filter((x): x is { name: string; id: string } => Boolean(x.id));
 
-    await db.booking.create({
+    const assignedAgentId = b.assignedAgentEmail ? agentIds.get(b.assignedAgentEmail) : undefined;
+
+    const booking = await db.booking.create({
       data: {
         reference: b.reference,
         status: b.status,
         propertyId,
         roomId: room.roomId,
         customerId: customer.id,
+        ...(assignedAgentId ? { assignedAgentId } : {}),
+        ...(b.supplierReference ? { supplierReference: b.supplierReference } : {}),
+        ...(b.supplierStatus ? { supplierStatus: b.supplierStatus } : {}),
         checkIn: new Date(b.checkIn),
         checkOut: new Date(b.checkOut),
         nights: Math.round(
@@ -484,22 +732,164 @@ async function main() {
         },
       },
     });
+    bookingIds.set(b.reference, booking.id);
+
+    await db.bookingEvent.create({
+      data: { bookingId: booking.id, type: "BOOKING_CREATED", message: "Booking created" },
+    });
+    if (assignedAgentId) {
+      const agentName = users.find((u) => u.email === b.assignedAgentEmail)?.fullName;
+      await db.bookingEvent.create({
+        data: {
+          bookingId: booking.id,
+          type: "ASSIGNED",
+          message: `Assigned to ${agentName ?? "an agent"}`,
+        },
+      });
+    }
+    if (b.supplierReference) {
+      await db.bookingEvent.create({
+        data: {
+          bookingId: booking.id,
+          type: "SUPPLIER_UPDATED",
+          message: `Supplier reference ${b.supplierReference} (${b.supplierStatus ?? "pending"})`,
+        },
+      });
+    }
+    for (const note of b.notes ?? []) {
+      await db.bookingNote.create({
+        data: { bookingId: booking.id, content: note },
+      });
+      await db.bookingEvent.create({
+        data: { bookingId: booking.id, type: "NOTE_ADDED", message: "Note added" },
+      });
+    }
+    if (b.conversation && b.conversation.length > 0) {
+      const conversation = await db.bookingConversation.create({
+        data: { bookingId: booking.id },
+      });
+      for (const m of b.conversation) {
+        await db.bookingMessage.create({
+          data: {
+            conversationId: conversation.id,
+            senderType: m.senderType,
+            senderName: m.senderName,
+            message: m.message,
+            isInternal: m.isInternal ?? false,
+          },
+        });
+      }
+    }
   }
 
-  await db.user.create({
-    data: {
-      email: "admin@oceanatlas.mv",
-      fullName: "Ocean Atlas Admin",
-      passwordHash: "REPLACE_WITH_BCRYPT_HASH",
-      role: "SUPER_ADMIN",
+  // Supplier confirmations — one REQUESTED, one CONFIRMED, one DECLINED
+  const confirmationSeed: Array<{
+    bookingRef: string;
+    supplier: string;
+    status: $Enums.SupplierStatus;
+    reference?: string;
+    notes?: string;
+  }> = [
+    {
+      bookingRef: "MV-24081",
+      supplier: "velaa private island",
+      status: "CONFIRMED",
+      reference: "VEL-2026-8812",
+      notes: "Confirmed by reservations team",
     },
-  });
+    {
+      bookingRef: "MV-24080",
+      supplier: "blue horizon cruises",
+      status: "REQUESTED",
+      notes: "Sent to supplier, awaiting response",
+    },
+    {
+      bookingRef: "MV-24070",
+      supplier: "velaa private island",
+      status: "DECLINED",
+      notes: "No availability in peak season",
+    },
+  ];
+  for (const c of confirmationSeed) {
+    const bookingId = bookingIds.get(c.bookingRef);
+    const supplierId = supplierIds.get(c.supplier);
+    if (!bookingId || !supplierId) continue;
+    await db.supplierConfirmation.create({
+      data: {
+        bookingId,
+        supplierId,
+        status: c.status,
+        ...(c.reference ? { reference: c.reference } : {}),
+        ...(c.notes ? { notes: c.notes } : {}),
+        ...(c.status === "CONFIRMED" ? { confirmedAt: new Date() } : {}),
+      },
+    });
+  }
+
+  // Contract rates — net rate vs sell rate (margin)
+  for (const p of properties) {
+    const supplierName = supplierByProperty[p.slug];
+    const supplierId = supplierName ? supplierIds.get(supplierName) : undefined;
+    if (!supplierId) continue;
+    for (const r of p.rooms) {
+      const roomId = roomIds.get(`${p.slug}:${r.name}`)?.roomId;
+      if (!roomId) continue;
+      await db.contractRate.create({
+        data: {
+          supplierId,
+          roomId,
+          validFrom: new Date("2026-04-01"),
+          validTo: new Date("2027-03-31"),
+          netRate: Math.round(r.rate * 0.8), // 80% of sell rate -> ~20% margin
+        },
+      });
+    }
+  }
+
+  // Leads & CRM
+  for (const l of leads) {
+    const lead = await db.lead.create({
+      data: {
+        source: l.source,
+        status: l.status,
+        fullName: l.fullName,
+        ...(l.email ? { email: l.email } : {}),
+        ...(l.phone ? { phone: l.phone } : {}),
+        ...(l.destination ? { destination: l.destination } : {}),
+        ...(l.checkIn ? { checkIn: new Date(l.checkIn) } : {}),
+        ...(l.checkOut ? { checkOut: new Date(l.checkOut) } : {}),
+        adults: l.adults,
+        children: l.children,
+        ...(l.notes ? { notes: l.notes } : {}),
+        ...(l.bookingRef ? { bookingId: bookingIds.get(l.bookingRef) } : {}),
+      },
+    });
+    if (l.quote) {
+      await db.quote.create({
+        data: {
+          leadId: lead.id,
+          totalPrice: l.quote.totalPrice,
+          validUntil: new Date(l.quote.validUntil),
+          ...(l.quote.notes ? { notes: l.quote.notes } : {}),
+        },
+      });
+    }
+    if (l.task) {
+      await db.leadTask.create({
+        data: {
+          leadId: lead.id,
+          dueAt: new Date(l.task.dueAt),
+          note: l.task.note,
+        },
+      });
+    }
+  }
 
   console.log("Seed complete.");
   console.log(`  properties: ${properties.length}`);
   console.log(`  rooms:      ${[...roomIds.keys()].length}`);
   console.log(`  bookings:   ${bookings.length}`);
-  console.log("  users:      1 (admin@oceanatlas.mv — set a real password hash in Phase 2)");
+  console.log(`  users:      ${users.length} (agents seeded)`);
 }
 
 main()

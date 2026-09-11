@@ -1,6 +1,21 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { createBooking, getBookingByReference, updateBookingStatus } from "@/lib/api/bookings";
+import {
+  addBookingAttachment,
+  addBookingNote,
+  assignBooking,
+  createBooking,
+  getBooking,
+  getBookingByReference,
+  unassignBooking,
+  updateBookingStatus,
+  updateBookingSupplier,
+} from "@/lib/api/bookings";
 import type { Booking, BookingStatus, Customer } from "@/generated/prisma/client";
+
+vi.mock("node:fs/promises", () => ({
+  mkdir: vi.fn().mockResolvedValue(undefined),
+  writeFile: vi.fn().mockResolvedValue(undefined),
+}));
 
 const property = {
   id: "p1",
@@ -40,19 +55,33 @@ const { mockDb } = vi.hoisted(() => ({
     addon: { findMany: vi.fn() },
     customer: { upsert: vi.fn() },
     booking: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn() },
+    bookingEvent: { create: vi.fn() },
+    bookingNote: { create: vi.fn() },
+    bookingAttachment: { create: vi.fn() },
+    bookingConversation: { findUnique: vi.fn(), create: vi.fn() },
+    bookingMessage: { create: vi.fn() },
+    notification: { create: vi.fn(), update: vi.fn() },
+    user: { findUnique: vi.fn(), findMany: vi.fn() },
+    markupRule: { findMany: vi.fn() },
   },
 }));
 
 vi.mock("@/lib/db.server", () => ({ db: mockDb }));
 
-vi.mock("@tanstack/react-start", () => ({
-  createServerFn: () => ({
-    validator: () => ({
-      handler: (h: (ctx: { data: unknown }) => unknown) => async (opts: { data: unknown }) =>
-        h({ data: opts.data }),
-    }),
-  }),
+vi.mock("@/lib/notifications/queue", () => ({
+  processEmail: vi.fn().mockResolvedValue(undefined),
 }));
+
+vi.mock("@tanstack/react-start", () => {
+  const handler = (h: (ctx: { data: unknown }) => unknown) => async (opts?: { data: unknown }) =>
+    h({ data: opts?.data });
+  return {
+    createServerFn: () => ({
+      validator: () => ({ handler }),
+      handler,
+    }),
+  };
+});
 
 function mockBookingRow() {
   return {
@@ -89,6 +118,8 @@ beforeEach(() => {
   mockDb.customer.upsert.mockResolvedValue({ id: "c1", email: "jane@example.com" });
   mockDb.booking.findUnique.mockResolvedValue(null);
   mockDb.booking.create.mockResolvedValue(mockBookingRow());
+  mockDb.bookingConversation.findUnique.mockResolvedValue({ id: "conv1", bookingId: "b1" });
+  mockDb.markupRule.findMany.mockResolvedValue([]);
 });
 
 describe("createBooking", () => {
@@ -187,5 +218,151 @@ describe("createBooking", () => {
       expect.objectContaining({ where: { id: "b1" }, data: { status: "CONFIRMED" } }),
     );
     expect(result.status).toBe("CONFIRMED");
+  });
+
+  it("records a STATUS_CHANGED event when a booking status changes", async () => {
+    mockDb.bookingConversation.findUnique.mockResolvedValue({ id: "conv1", bookingId: "b1" });
+    const updated = mockBookingRow();
+    updated.status = "AWAITING_PAYMENT";
+    mockDb.booking.update.mockResolvedValue(updated);
+    await updateBookingStatus({ data: { id: "b1", status: "AWAITING_PAYMENT" } });
+    expect(mockDb.bookingEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        bookingId: "b1",
+        type: "STATUS_CHANGED",
+        message: "Status changed to AWAITING_PAYMENT",
+      }),
+    });
+    // SYSTEM message automation
+    expect(mockDb.bookingMessage.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        senderType: "SYSTEM",
+        message: "Booking status changed to AWAITING_PAYMENT.",
+      }),
+    });
+  });
+
+  it("records a BOOKING_CREATED event when a booking is created", async () => {
+    await createBooking({ data: baseInput });
+    expect(mockDb.bookingEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ type: "BOOKING_CREATED" }),
+    });
+  });
+
+  it("assigns a booking to an agent and records an event", async () => {
+    mockDb.user.findUnique.mockResolvedValue({ id: "agent1", fullName: "Ahmed Hassan" });
+    mockDb.booking.update.mockResolvedValue(mockBookingRow());
+    const result = await assignBooking({ data: { id: "b1", agentId: "agent1" } });
+    expect(mockDb.booking.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "b1" }, data: { assignedAgentId: "agent1" } }),
+    );
+    expect(mockDb.bookingEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ type: "ASSIGNED", message: "Assigned to Ahmed Hassan" }),
+    });
+    expect(result).toBeTruthy();
+  });
+
+  it("throws when assigning to an unknown agent", async () => {
+    mockDb.user.findUnique.mockResolvedValue(null);
+    await expect(assignBooking({ data: { id: "b1", agentId: "nope" } })).rejects.toThrow(
+      /Agent not found/,
+    );
+  });
+
+  it("unassigns a booking and records an event", async () => {
+    mockDb.booking.update.mockResolvedValue(mockBookingRow());
+    await unassignBooking({ data: "b1" });
+    expect(mockDb.booking.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "b1" }, data: { assignedAgentId: null } }),
+    );
+    expect(mockDb.bookingEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ type: "UNASSIGNED" }),
+    });
+  });
+
+  it("adds an internal note and records an event", async () => {
+    mockDb.bookingNote.create.mockResolvedValue({
+      id: "n1",
+      content: "Customer prefers upper deck",
+      createdAt: new Date(),
+    });
+    const result = await addBookingNote({
+      data: { bookingId: "b1", content: "Customer prefers upper deck" },
+    });
+    expect(mockDb.bookingNote.create).toHaveBeenCalledWith({
+      data: { bookingId: "b1", content: "Customer prefers upper deck" },
+    });
+    expect(mockDb.bookingEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ bookingId: "b1", type: "NOTE_ADDED" }),
+    });
+    expect(result.content).toBe("Customer prefers upper deck");
+  });
+
+  it("rejects an empty note", async () => {
+    await expect(addBookingNote({ data: { bookingId: "b1", content: "   " } })).rejects.toThrow(
+      /cannot be empty/i,
+    );
+  });
+
+  it("uploads an attachment and records an event", async () => {
+    const form = new FormData();
+    form.append("bookingId", "b1");
+    form.append(
+      "file",
+      new File([new Uint8Array([1, 2, 3])], "quote.pdf", { type: "application/pdf" }),
+    );
+    mockDb.bookingAttachment.create.mockResolvedValue({
+      id: "att1",
+      filename: "quote.pdf",
+      url: "/uploads/1-quote.pdf",
+      uploadedAt: new Date(),
+    });
+    const result = await addBookingAttachment({ data: form });
+    expect(result).toMatchObject({ filename: "quote.pdf", url: "/uploads/1-quote.pdf" });
+    expect(mockDb.bookingEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ bookingId: "b1", type: "ATTACHMENT_UPLOADED" }),
+    });
+  });
+
+  it("updates supplier reference/status and records an event", async () => {
+    mockDb.booking.update.mockResolvedValue(mockBookingRow());
+    await updateBookingSupplier({
+      data: { id: "b1", reference: "VELAA-2026-9981", status: "Confirmed" },
+    });
+    expect(mockDb.booking.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "b1" },
+        data: { supplierReference: "VELAA-2026-9981", supplierStatus: "Confirmed" },
+      }),
+    );
+    expect(mockDb.bookingEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ type: "SUPPLIER_UPDATED" }),
+    });
+  });
+
+  it("fetches a full booking detail with timeline, notes and attachments", async () => {
+    const detail = {
+      ...mockBookingRow(),
+      assignedAgent: { id: "agent1", fullName: "Ahmed Hassan" },
+      supplierReference: "VELAA-2026-9981",
+      supplierStatus: "Confirmed",
+      events: [
+        { id: "e1", type: "BOOKING_CREATED", message: "Booking created", createdAt: new Date() },
+      ],
+      notes: [{ id: "n1", content: "internal", createdAt: new Date() }],
+      attachments: [
+        { id: "att1", filename: "quote.pdf", url: "/uploads/1.pdf", uploadedAt: new Date() },
+      ],
+    };
+    mockDb.booking.findUnique.mockResolvedValue(detail);
+    const result = await getBooking({ data: "b1" });
+    expect(result).toMatchObject({
+      reference: "MV-12345",
+      assignedAgent: { id: "agent1", name: "Ahmed Hassan" },
+      supplierReference: "VELAA-2026-9981",
+      events: [{ id: "e1", type: "BOOKING_CREATED", message: "Booking created" }],
+      notes: [{ id: "n1", content: "internal" }],
+      attachments: [{ id: "att1", filename: "quote.pdf", url: "/uploads/1.pdf" }],
+    });
   });
 });

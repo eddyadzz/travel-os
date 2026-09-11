@@ -110,15 +110,28 @@ function BookingSuccess() {
           </p>
         </div>
 
-        <div className="mt-6 flex gap-3">
-          <Button asChild className="flex-1">
-            <Link to="/properties" search={{ type: "all" }}>
-              Browse more stays
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="flex-1">
-            <Link to="/">Back home</Link>
-          </Button>
+        <div className="mt-6 grid gap-3">
+          {booking.trackingToken && (
+            <Button asChild>
+              <Link
+                to="/track/$reference"
+                params={{ reference: booking.reference }}
+                search={{ token: booking.trackingToken }}
+              >
+                Track your booking & reply
+              </Link>
+            </Button>
+          )}
+          <div className="flex gap-3">
+            <Button asChild variant="outline" className="flex-1">
+              <Link to="/properties" search={{ type: "all" }}>
+                Browse more stays
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="flex-1">
+              <Link to="/">Back home</Link>
+            </Button>
+          </div>
         </div>
       </main>
       <SiteFooter />

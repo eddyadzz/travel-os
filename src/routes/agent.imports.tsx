@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { getImportJob, listImportJobs, previewImport, runImport } from "@/lib/api/imports";
 import type { AvailabilityPreview, ImportJobDTO, RatePreview } from "@/lib/imports/types";
+import type { ImportChangeDTO } from "@/lib/types";
 
 export const Route = createFileRoute("/agent/imports")({
   loader: async () => {
@@ -335,6 +336,7 @@ function Summary({
 function HistoryTable({ jobs }: { jobs: ImportJobDTO[] }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [errors, setErrors] = useState<Array<{ rowNumber: number; message: string }> | null>(null);
+  const [changes, setChanges] = useState<ImportChangeDTO[] | null>(null);
   const [loading, setLoading] = useState(false);
 
   const toggle = async (id: string) => {
@@ -344,12 +346,15 @@ function HistoryTable({ jobs }: { jobs: ImportJobDTO[] }) {
     }
     setExpanded(id);
     setErrors(null);
+    setChanges(null);
     setLoading(true);
     try {
       const job = await getImportJob({ data: id });
       setErrors(job?.errors ?? []);
+      setChanges(job?.changes ?? []);
     } catch {
       setErrors([]);
+      setChanges([]);
     } finally {
       setLoading(false);
     }
@@ -384,6 +389,7 @@ function HistoryTable({ jobs }: { jobs: ImportJobDTO[] }) {
                   expanded={expanded === j.id}
                   loading={expanded === j.id && loading}
                   errors={expanded === j.id ? errors : null}
+                  changes={expanded === j.id ? changes : null}
                   onToggle={() => toggle(j.id)}
                 />
               ))}
@@ -400,12 +406,14 @@ function FragmentRow({
   expanded,
   loading,
   errors,
+  changes,
   onToggle,
 }: {
   job: ImportJobDTO;
   expanded: boolean;
   loading: boolean;
   errors: Array<{ rowNumber: number; message: string }> | null;
+  changes: ImportChangeDTO[] | null;
   onToggle: () => void;
 }) {
   const statusBadge =
@@ -435,10 +443,10 @@ function FragmentRow({
         <TableCell className="text-right">{job.failedRows}</TableCell>
         <TableCell>{statusBadge}</TableCell>
         <TableCell>
-          {job.failedRows > 0 && (
+          {(job.successRows > 0 || job.failedRows > 0) && (
             <Button variant="ghost" size="sm" onClick={onToggle}>
               {expanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-              <span className="sr-only">Toggle errors</span>
+              <span className="sr-only">Toggle details</span>
             </Button>
           )}
         </TableCell>
@@ -447,28 +455,73 @@ function FragmentRow({
         <TableRow>
           <TableCell colSpan={7} className="bg-secondary/20">
             {loading ? (
-              <p className="text-sm text-muted-foreground">Loading errors…</p>
-            ) : errors && errors.length > 0 ? (
-              <div className="max-h-52 overflow-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-20">Row</TableHead>
-                      <TableHead>Problem</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {errors.map((e) => (
-                      <TableRow key={`${job.id}-${e.rowNumber}`}>
-                        <TableCell className="font-mono text-xs">{e.rowNumber}</TableCell>
-                        <TableCell className="text-muted-foreground">{e.message}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              <p className="text-sm text-muted-foreground">Loading details…</p>
             ) : (
-              <p className="text-sm text-muted-foreground">No errors recorded.</p>
+              <div className="space-y-4">
+                {changes && changes.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold">Changes ({changes.length})</p>
+                    <div className="mt-2 max-h-56 overflow-auto rounded-lg border bg-card">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Room</TableHead>
+                            <TableHead>Date / range</TableHead>
+                            <TableHead>Field</TableHead>
+                            <TableHead>Before</TableHead>
+                            <TableHead>After</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {changes.map((c) => (
+                            <TableRow key={c.id}>
+                              <TableCell>
+                                <Badge variant="outline">{c.type}</Badge>
+                              </TableCell>
+                              <TableCell className="font-medium">{c.roomId.slice(-6)}</TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {c.date ?? "—"}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground">{c.field}</TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {c.beforeValue ?? "—"}
+                              </TableCell>
+                              <TableCell className="font-medium">{c.afterValue}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+                {errors && errors.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold">Errors ({errors.length})</p>
+                    <div className="mt-2 max-h-52 overflow-auto rounded-lg border bg-card">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-20">Row</TableHead>
+                            <TableHead>Problem</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {errors.map((e) => (
+                            <TableRow key={`${job.id}-${e.rowNumber}`}>
+                              <TableCell className="font-mono text-xs">{e.rowNumber}</TableCell>
+                              <TableCell className="text-muted-foreground">{e.message}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+                {(!changes || changes.length === 0) && (!errors || errors.length === 0) && (
+                  <p className="text-sm text-muted-foreground">No changes or errors recorded.</p>
+                )}
+              </div>
             )}
           </TableCell>
         </TableRow>

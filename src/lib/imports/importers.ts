@@ -7,6 +7,7 @@ import type {
   ValidRateRow,
 } from "./types";
 import { validateAvailabilityRows, validateRateRows } from "./validators";
+import { markSupplierRequestsImported } from "@/lib/api/supplier-updates";
 
 export type ImportResult<T> = {
   jobId: string;
@@ -77,7 +78,7 @@ export async function importRates(
     successRows: valid.length,
     failedRows: errors.length,
     errors,
-    persist: async () => {
+    persist: async (jobId) => {
       if (valid.length > 0) {
         await db.rate.createMany({
           data: valid.map((r) => ({
@@ -90,6 +91,22 @@ export async function importRates(
             season: r.season ?? null,
           })),
         });
+        // Audit: every imported rate is a new row (no overwrite yet — see
+        // rate versioning). Record the created values for the audit trail.
+        await db.importChange.createMany({
+          data: valid.map((r) => ({
+            importJobId: jobId,
+            type: "RATE",
+            propertyId: r.propertyId,
+            roomId: r.roomId,
+            date: `${r.validFrom}..${r.validTo}`,
+            field: "amount",
+            beforeValue: null,
+            afterValue: String(r.amount),
+          })),
+        });
+        // Close the loop: mark open RATES update requests as IMPORTED.
+        await markSupplierRequestsImported("RATES", [...new Set(valid.map((r) => r.propertyId))]);
       }
       return { status: "COMPLETED", imported: valid };
     },
@@ -108,18 +125,71 @@ export async function importAvailability(
     successRows: valid.length,
     failedRows: errors.length,
     errors,
-    persist: async () => {
+    persist: async (jobId) => {
+      const changes: Array<{
+        importJobId: string;
+        type: string;
+        propertyId: string;
+        roomId: string;
+        date: string;
+        field: string;
+        beforeValue: string | null;
+        afterValue: string;
+      }> = [];
       if (valid.length > 0) {
-        await db.availability.createMany({
-          data: valid.map((r) => ({
-            propertyId: r.propertyId,
-            roomId: r.roomId,
-            date: new Date(`${r.date}T00:00:00.000Z`),
-            inventory: r.inventory,
-          })),
-          skipDuplicates: true,
-        });
+        // Smart merge + audit: never wipe data. For each (roomId, date) row,
+        // compare with the existing value and record a before→after change.
+        for (const r of valid) {
+          const date = new Date(`${r.date}T00:00:00.000Z`);
+          const existing = await db.availability.findUnique({
+            where: { roomId_date: { roomId: r.roomId, date } },
+          });
+          if (existing) {
+            if (existing.inventory !== r.inventory) {
+              changes.push({
+                importJobId: jobId,
+                type: "AVAILABILITY",
+                propertyId: r.propertyId,
+                roomId: r.roomId,
+                date: r.date,
+                field: "inventory",
+                beforeValue: String(existing.inventory),
+                afterValue: String(r.inventory),
+              });
+            }
+            await db.availability.update({
+              where: { id: existing.id },
+              data: { inventory: r.inventory, propertyId: r.propertyId },
+            });
+          } else {
+            await db.availability.create({
+              data: {
+                propertyId: r.propertyId,
+                roomId: r.roomId,
+                date,
+                inventory: r.inventory,
+              },
+            });
+            changes.push({
+              importJobId: jobId,
+              type: "AVAILABILITY",
+              propertyId: r.propertyId,
+              roomId: r.roomId,
+              date: r.date,
+              field: "inventory",
+              beforeValue: null,
+              afterValue: String(r.inventory),
+            });
+          }
+        }
       }
+      if (changes.length > 0) {
+        await db.importChange.createMany({ data: changes });
+      }
+      // Close the loop: mark open AVAILABILITY update requests as IMPORTED.
+      await markSupplierRequestsImported("AVAILABILITY", [
+        ...new Set(valid.map((r) => r.propertyId)),
+      ]);
       return { status: "COMPLETED", imported: valid };
     },
   });
