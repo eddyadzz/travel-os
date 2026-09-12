@@ -12,4 +12,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Bare-metal deployments run `node .output/server/index.mjs` under PM2, so build
+  // a real Node HTTP server instead of the default Cloudflare Workers target.
+  nitro: {
+    preset: "node-server",
+  },
 });
