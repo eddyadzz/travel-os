@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/lib/db.server";
-import { DEFAULT_TENANT_SLUG } from "@/lib/tenant-context";
+import { getDefaultTenantId } from "@/lib/tenant-context.server";
 import type { CmsPageDTO, PublicSiteDTO, SiteContentData } from "@/lib/types";
 
 const DEFAULT_CONTENT: SiteContentData = {
@@ -16,7 +16,8 @@ const DEFAULT_CONTENT: SiteContentData = {
 };
 
 async function defaultTenant() {
-  const tenant = await db.tenant.findUnique({ where: { slug: DEFAULT_TENANT_SLUG } });
+  const id = await getDefaultTenantId();
+  const tenant = await db.tenant.findUnique({ where: { id } });
   if (!tenant) throw new Error("Default tenant not found.");
   return tenant;
 }
@@ -132,8 +133,9 @@ export const saveBranding = createServerFn({ method: "POST" })
     }) => input,
   )
   .handler(async ({ data }) => {
+    const id = await getDefaultTenantId();
     await db.tenant.update({
-      where: { slug: DEFAULT_TENANT_SLUG },
+      where: { id },
       data: {
         ...(data.name !== undefined ? { name: data.name } : {}),
         ...(data.logoUrl !== undefined ? { logoUrl: data.logoUrl } : {}),

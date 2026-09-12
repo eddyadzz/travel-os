@@ -1,9 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { db } from "@/lib/db.server";
-import { DEFAULT_TENANT_SLUG } from "@/lib/tenant-context";
-import { listBackups, verifyBackup } from "@/lib/api/deploy";
+import { DEFAULT_TENANT_SLUG } from "@/lib/tenant-context.server";
+import { checkPwaAssets, listBackups, verifyBackup } from "@/lib/backup.server";
 import type { DeployCheckItem } from "@/lib/types";
 
 export type ReadinessResult = {
@@ -48,9 +46,7 @@ export async function runReadinessCheck(): Promise<ReadinessResult> {
   if (!emailOk) blockers.push("Outbound email not configured");
 
   // 3. PWA assets reachable.
-  const publicDir = join(process.cwd(), "public");
-  const pwaFiles = ["manifest.webmanifest", "sw.js", "icon.svg"];
-  const missingPwa = pwaFiles.filter((f) => !existsSync(join(publicDir, f)));
+  const missingPwa = checkPwaAssets();
   checks.push({
     key: "pwa",
     label: "PWA installable (manifest, service worker, icon)",

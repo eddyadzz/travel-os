@@ -3,14 +3,13 @@ import {
   createTenant,
   getTenantByHost,
   getTenantUsage,
-  hashPassword,
   listTenants,
   resolveTenantForHost,
   setTenantPlan,
   updateTenant,
-  verifyPassword,
 } from "@/lib/api/tenants";
-import { resolveTenantIdFromHost, runWithTenant } from "@/lib/tenant-context";
+import { hashPassword, verifyPassword } from "@/lib/crypto.server";
+import { resolveTenantIdFromHost, runWithTenant } from "@/lib/tenant-context.server";
 import { db } from "@/lib/db.server";
 
 const { mockDb } = vi.hoisted(() => ({
@@ -181,7 +180,7 @@ describe("tenant context", () => {
   it("exposes the active tenant id inside runWithTenant", async () => {
     const seen: string[] = [];
     await runWithTenant("tnt2", async () => {
-      const { getTenantContext } = await import("@/lib/tenant-context");
+      const { getTenantContext } = await import("@/lib/tenant-context.server");
       seen.push(getTenantContext() ?? "");
     });
     expect(seen).toEqual(["tnt2"]);

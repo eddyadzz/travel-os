@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { listProperties } from "@/lib/api/properties";
 import { getPublicSite } from "@/lib/api/cms";
+import { PromotionalBlock } from "@/components/promotional-block";
 import type { SiteContentData } from "@/lib/types";
 
 export const Route = createFileRoute("/")({
@@ -169,6 +170,9 @@ function Index() {
           </div>
         </section>
 
+        {/* Marketing block — below hero */}
+        <PromotionalBlock block={content.marketingBlocks?.belowHero} />
+
         <section className="mx-auto max-w-6xl px-4 py-16">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {propertyTypes.map((t) => {
@@ -273,6 +277,9 @@ function Index() {
             </div>
           </section>
         )}
+
+        {/* Marketing block — above footer */}
+        <PromotionalBlock block={content.marketingBlocks?.aboveFooter} />
       </main>
 
       <SiteFooter />

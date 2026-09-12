@@ -16,7 +16,7 @@ const { mockDb } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/db.server", () => ({ db: mockDb }));
-vi.mock("@/lib/documents/storage", () => ({
+vi.mock("@/lib/documents/storage.server", () => ({
   storeDocument: vi.fn().mockResolvedValue({ url: "/uploads/documents/q.pdf" }),
 }));
 vi.mock("@/lib/notifications/queue", () => ({

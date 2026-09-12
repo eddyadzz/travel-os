@@ -9,7 +9,7 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
  * tests and pre-configuration deployments keep working unchanged.
  *
  * Environment variables:
- *   R2_ACCOUNT_ID         your Cloudflare account id
+ *   R2_ENDPOINT           S3 endpoint (https://<account-id>.r2.cloudflarestorage.com)
  *   R2_ACCESS_KEY_ID      R2 API token access key id
  *   R2_SECRET_ACCESS_KEY  R2 API token secret
  *   R2_BUCKET             bucket name
@@ -17,7 +17,7 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
  */
 
 export type R2Config = {
-  accountId: string;
+  endpoint: string;
   accessKeyId: string;
   secretAccessKey: string;
   bucket: string;
@@ -25,13 +25,13 @@ export type R2Config = {
 };
 
 export function getR2Config(): R2Config | null {
-  const accountId = process.env["R2_ACCOUNT_ID"];
+  const endpoint = process.env["R2_ENDPOINT"];
   const accessKeyId = process.env["R2_ACCESS_KEY_ID"];
   const secretAccessKey = process.env["R2_SECRET_ACCESS_KEY"];
   const bucket = process.env["R2_BUCKET"];
   const publicUrl = process.env["R2_PUBLIC_URL"];
-  if (!accountId || !accessKeyId || !secretAccessKey || !bucket || !publicUrl) return null;
-  return { accountId, accessKeyId, secretAccessKey, bucket, publicUrl };
+  if (!endpoint || !accessKeyId || !secretAccessKey || !bucket || !publicUrl) return null;
+  return { endpoint, accessKeyId, secretAccessKey, bucket, publicUrl };
 }
 
 export function isR2Configured(): boolean {
@@ -44,7 +44,7 @@ function r2Client(config: R2Config): S3Client {
   if (!cachedClient) {
     cachedClient = new S3Client({
       region: "auto",
-      endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,
+      endpoint: config.endpoint,
       credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
     });
   }

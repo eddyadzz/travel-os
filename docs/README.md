@@ -23,6 +23,8 @@ Documents → Travel → Finance → Analytics → Forecasting → Automation �
 | [Deployment Guide — Bare Metal](deployment-guide-bare-metal.md) | Deployment engineer | **nginx + PM2 + local PostgreSQL + Cloudflare origin certs** (current production setup) |
 | [Backup & Recovery Guide](backup-recovery-guide.md) | Deployment engineer | Backup, verification, restore, disaster recovery |
 | [First-Time Setup](first-time-setup.md) | Onboarding lead | The repeatable first-client playbook, end to end |
+| [Demo Script](demo-script.md) | Sales / onboarding | The guided ~15-minute demonstration path |
+| [Technical Debt](technical-debt.md) | Engineering | Deferred cleanup tracked for after the demo |
 
 ## Where things live
 

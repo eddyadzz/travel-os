@@ -18,13 +18,11 @@ export function BrandingStyle() {
         const style = document.createElement("style");
         style.id = "tenant-branding";
         const fontRule = branding.fontFamily
-          ? `body { font-family: ${branding.fontFamily}, system-ui, sans-serif; }`
+          ? `--font-sans: ${branding.fontFamily}, ui-sans-serif, system-ui, sans-serif; --font-display: ${branding.fontFamily}, Georgia, serif;`
           : "";
         style.textContent = `:root { --primary: ${branding.primaryColor}; --color-primary: ${branding.primaryColor}; ${
-          branding.accentColor
-            ? `--accent: ${branding.accentColor}; --color-accent: ${branding.accentColor};`
-            : ""
-        } } ${fontRule}`;
+          branding.accentColor ? `--accent: ${branding.accentColor}; --color-accent: ${branding.accentColor};` : ""
+        } ${fontRule} }`;
         document.head.appendChild(style);
         setInjected(true);
       })

@@ -24,8 +24,8 @@ const { mockDb } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/db.server", () => ({ db: mockDb }));
-vi.mock("@/lib/tenant-context", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/tenant-context")>();
+vi.mock("@/lib/tenant-context.server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/tenant-context.server")>();
   return { ...actual, getDefaultTenantId: vi.fn().mockResolvedValue("tnt_default") };
 });
 vi.mock("@/lib/api/finance", async (importOriginal) => {

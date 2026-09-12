@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/lib/db.server";
 import { generateDocument } from "@/lib/documents/generator";
-import { storeDocument } from "@/lib/documents/storage";
+import { storeDocument } from "@/lib/documents/storage.server";
 import { documentFilename } from "@/lib/documents/generator";
 import { customerDeepLink } from "@/lib/notifications/service";
 import { notifyAttachmentAdded } from "@/lib/notifications/service";

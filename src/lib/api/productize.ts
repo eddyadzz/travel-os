@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import * as XLSX from "xlsx";
 import { db } from "@/lib/db.server";
-import { DEFAULT_TENANT_SLUG } from "@/lib/tenant-context";
-import { listBackups, verifyBackup } from "@/lib/api/deploy";
+import { DEFAULT_TENANT_SLUG } from "@/lib/tenant-context.server";
+import { listBackups, verifyBackup } from "@/lib/backup.server";
 import { runReadinessCheck } from "@/lib/api/readiness";
 
 export type SetupStatus = {

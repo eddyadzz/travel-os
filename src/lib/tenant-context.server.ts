@@ -3,6 +3,7 @@ import { db } from "@/lib/db.server";
 
 export const BASE_DOMAIN = process.env["TENANT_BASE_DOMAIN"] ?? "oceanatlas.mv";
 export const DEFAULT_TENANT_SLUG = "ocean-atlas";
+export const DEFAULT_TENANT_NAME = "TravelOS by Boliflow";
 
 const storage = new AsyncLocalStorage<string>();
 
@@ -54,11 +55,19 @@ export async function resolveTenantIdFromHost(host: string | undefined): Promise
 
 let cachedDefaultTenantId: string | undefined;
 
-/** The platform's own agency — the tenant that owns all pre-Phase-24 data. */
+/**
+ * The platform's own agency — the tenant that owns all pre-Phase-24 data.
+ * Lazily creates the default tenant if it is missing, so a fresh install never
+ * fails with "Default tenant not found".
+ */
 export async function getDefaultTenantId(): Promise<string> {
   if (cachedDefaultTenantId) return cachedDefaultTenantId;
-  const tenant = await db.tenant.findUnique({ where: { slug: DEFAULT_TENANT_SLUG } });
-  if (!tenant) throw new Error("Default tenant not found — run the tenant backfill first.");
+  let tenant = await db.tenant.findUnique({ where: { slug: DEFAULT_TENANT_SLUG } });
+  if (!tenant) {
+    tenant = await db.tenant.create({
+      data: { slug: DEFAULT_TENANT_SLUG, name: DEFAULT_TENANT_NAME, plan: "PROFESSIONAL" },
+    });
+  }
   cachedDefaultTenantId = tenant.id;
   return tenant.id;
 }

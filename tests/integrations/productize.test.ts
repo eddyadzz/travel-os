@@ -21,8 +21,8 @@ const { mockDb } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/db.server", () => ({ db: mockDb }));
-vi.mock("@/lib/api/deploy", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/api/deploy")>();
+vi.mock("@/lib/backup.server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/backup.server")>();
   return {
     ...actual,
     listBackups: vi.fn().mockResolvedValue([

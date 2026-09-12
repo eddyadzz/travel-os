@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/lib/db.server";
-import { uploadObject } from "@/lib/storage/object-storage";
+import { uploadObject } from "@/lib/storage/object-storage.server";
 import { calculatePrice, nightsBetween } from "@/lib/pricing";
 import { applyMarkup, getEffectiveMarkup } from "@/lib/markup";
 import { checkAvailability } from "@/lib/availability";

@@ -24,6 +24,9 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Local object-storage fallback + test artifacts
+public/uploads/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

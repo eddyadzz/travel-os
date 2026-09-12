@@ -566,6 +566,84 @@ async function main() {
   await db.customer.deleteMany();
   await db.user.deleteMany();
 
+  // Ensure the default tenant exists (idempotent) so the platform is usable
+  // out of the box — the homepage/CMS/deploy look this up by slug.
+  const tenant = await db.tenant.upsert({
+    where: { slug: "ocean-atlas" },
+    create: { slug: "ocean-atlas", name: "TravelOS by Boliflow", plan: "PROFESSIONAL" },
+    update: {},
+  });
+
+  // Default homepage content.
+  const defaultContent = {
+    heroEyebrow: "Maldives specialists",
+    heroHeadline: "Build your Maldives escape, priced before you ask.",
+    heroSubheadline:
+      "Pick an island, choose your villa, add spa, diving and transfers — see the estimate instantly and send one complete request to our agents.",
+    heroCtaLabel: "Search availability",
+    heroCtaTarget: "/search",
+    featuredPropertySlugs: [],
+    testimonials: [
+      {
+        name: "Amelia R.",
+        quote:
+          "Flawless from quote to check-in — the deposit was simple and the vouchers arrived automatically.",
+        role: "Overwater villa · Sep 2026",
+      },
+      {
+        name: "Daniel O.",
+        quote: "Instant pricing and one request. The team confirmed our safari boat within hours.",
+        role: "Liveaboard · Oct 2026",
+      },
+    ],
+    aboutSummary:
+      "We are a Maldives travel agency delivering resorts, guesthouses and safari boats with transparent pricing and a fully digital booking experience.",
+    marketingBlocks: {
+      belowHero: {
+        enabled: true,
+        title: "Complimentary speedboat transfers this season",
+        subtitle:
+          "Reserve any resort villa for five nights or more and we'll include the round-trip speedboat transfer for two — worth up to $1,100.",
+        buttonLabel: "Search availability",
+        buttonUrl: "/search",
+      },
+    },
+  };
+  const existingContent = await db.siteContent.findUnique({ where: { tenantId: tenant.id } });
+  if (existingContent) {
+    await db.siteContent.update({
+      where: { id: existingContent.id },
+      data: { data: defaultContent },
+    });
+  } else {
+    await db.siteContent.create({ data: { tenantId: tenant.id, data: defaultContent } });
+  }
+
+  // Starter pages (About + FAQ) only when none exist for this tenant.
+  const pageCount = await db.cmsPage.count({ where: { tenantId: tenant.id } });
+  if (pageCount === 0) {
+    await db.cmsPage.create({
+      data: {
+        tenantId: tenant.id,
+        slug: "about",
+        title: "About us",
+        body: "We are a Maldives travel agency.\n\nFrom overwater resorts to guesthouses and liveaboard safari boats, we build your trip with transparent pricing and handle every detail — availability, transfers, vouchers and 24/7 support — in one place.",
+        published: true,
+        sortOrder: 0,
+      },
+    });
+    await db.cmsPage.create({
+      data: {
+        tenantId: tenant.id,
+        slug: "faq",
+        title: "Frequently asked questions",
+        body: "How do payments work?\n\nBook with a 50% deposit, then settle the balance before arrival. Pay securely through your booking portal.\n\nHow do I get my vouchers?\n\nVouchers are generated automatically three days before arrival and emailed to you.",
+        published: true,
+        sortOrder: 1,
+      },
+    });
+  }
+
   const addons = new Map<string, string>();
   for (const a of addonDefs) {
     const created = await db.addon.create({ data: a });
@@ -682,6 +760,7 @@ async function main() {
         fullName: u.fullName,
         passwordHash: "REPLACE_WITH_BCRYPT_HASH",
         role: u.role,
+        tenantId: tenant.id,
       },
     });
     agentIds.set(u.email, user.id);

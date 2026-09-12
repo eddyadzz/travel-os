@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { uploadObject } from "@/lib/storage/object-storage";
+import { uploadObject } from "@/lib/storage/object-storage.server";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];

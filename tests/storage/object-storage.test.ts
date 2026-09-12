@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { isR2Configured, uploadObject } from "@/lib/storage/object-storage";
+import { isR2Configured, uploadObject } from "@/lib/storage/object-storage.server";
 import { uploadImage } from "@/lib/api/upload";
 
 vi.mock("@tanstack/react-start", () => {
@@ -16,7 +16,7 @@ vi.mock("@tanstack/react-start", () => {
 const ORIGINAL_ENV = { ...process.env };
 
 function clearR2Env() {
-  delete process.env["R2_ACCOUNT_ID"];
+  delete process.env["R2_ENDPOINT"];
   delete process.env["R2_ACCESS_KEY_ID"];
   delete process.env["R2_SECRET_ACCESS_KEY"];
   delete process.env["R2_BUCKET"];
@@ -34,7 +34,7 @@ describe("isR2Configured", () => {
   });
 
   it("is true when all five R2 vars are present", () => {
-    process.env["R2_ACCOUNT_ID"] = "acct";
+    process.env["R2_ENDPOINT"] = "https://acct.r2.cloudflarestorage.com";
     process.env["R2_ACCESS_KEY_ID"] = "key";
     process.env["R2_SECRET_ACCESS_KEY"] = "secret";
     process.env["R2_BUCKET"] = "bucket";

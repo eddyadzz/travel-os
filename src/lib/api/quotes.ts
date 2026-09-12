@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { randomBytes } from "node:crypto";
+import { randomToken } from "@/lib/crypto.server";
 import { db } from "@/lib/db.server";
 import { calculatePrice, nightsBetween } from "@/lib/pricing";
 import { applyMarkup, getEffectiveMarkup } from "@/lib/markup";
 import { generateQuotePdf } from "@/lib/documents/generator";
-import { storeDocument } from "@/lib/documents/storage";
+import { storeDocument } from "@/lib/documents/storage.server";
 import { notifyQuoteReady } from "@/lib/notifications/service";
 import type { AutoQuoteInput, QuoteBreakdownDTO, QuoteDTO } from "@/lib/types";
 import type { Prisma } from "@/generated/prisma/client";
@@ -102,7 +102,7 @@ export const generateAutoQuote = createServerFn({ method: "POST" })
     };
 
     const reference = `QT-${Math.floor(10000 + Math.random() * 89999)}`;
-    const token = randomBytes(16).toString("hex");
+    const token = randomToken(16);
     const bookingLink = `/quote/${token}`;
 
     let customerName = input.customerName ?? "";

@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { randomBytes } from "node:crypto";
+import { randomToken } from "@/lib/crypto.server";
 import { db } from "@/lib/db.server";
 import type {
   BookingCostingDTO,
@@ -157,7 +157,7 @@ async function ensureSupplierToken(supplierId: string): Promise<string> {
   const supplier = await db.supplier.findUnique({ where: { id: supplierId } });
   if (!supplier) throw new Error("Supplier not found");
   if (supplier.accessToken) return supplier.accessToken;
-  const token = randomBytes(16).toString("hex");
+  const token = randomToken(16);
   await db.supplier.update({ where: { id: supplierId }, data: { accessToken: token } });
   return token;
 }

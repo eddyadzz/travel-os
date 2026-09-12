@@ -1,4 +1,4 @@
-import { uploadObject } from "@/lib/storage/object-storage";
+import { uploadObject } from "@/lib/storage/object-storage.server";
 
 /**
  * Stores a generated PDF and returns its public URL (R2 when configured, local

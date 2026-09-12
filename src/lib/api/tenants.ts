@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { hashPassword, randomToken } from "@/lib/crypto.server";
 import { db } from "@/lib/db.server";
-import { resolveTenantIdFromHost, getDefaultTenantId } from "@/lib/tenant-context";
+import { resolveTenantIdFromHost, getDefaultTenantId } from "@/lib/tenant-context.server";
 import type {
   CreateTenantInput,
   PlanType,
@@ -18,19 +18,6 @@ export const PLAN_LIMITS: Record<
   PROFESSIONAL: { bookingsPerYear: 5_000, leads: 10_000, users: 25 },
   ENTERPRISE: { bookingsPerYear: Infinity, leads: Infinity, users: Infinity },
 };
-
-export function hashPassword(password: string): string {
-  const salt = randomBytes(16).toString("hex");
-  const hash = scryptSync(password, salt, 64).toString("hex");
-  return `${salt}:${hash}`;
-}
-
-export function verifyPassword(password: string, stored: string): boolean {
-  const [salt, hash] = stored.split(":");
-  if (!salt || !hash) return false;
-  const candidate = scryptSync(password, salt, 64);
-  return timingSafeEqual(candidate, Buffer.from(hash, "hex"));
-}
 
 function toDTO(t: {
   id: string;
@@ -128,7 +115,7 @@ export const createTenant = createServerFn({ method: "POST" })
     if (!slug) throw new Error("Agency slug is required (e.g. maldives-explorers).");
     const exists = await db.tenant.findUnique({ where: { slug } });
     if (exists) throw new Error(`Agency slug "${slug}" is already taken.`);
-    const password = data.adminPassword ?? randomBytes(8).toString("hex");
+    const password = data.adminPassword ?? randomToken(8);
 
     const tenant = await db.tenant.create({
       data: {

@@ -410,12 +410,12 @@ function PropertyDetail() {
                       {property.addons.map((a) => (
                         <label
                           key={a.id}
+                          onClick={() => toggleAddon(a.id)}
                           className="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors hover:bg-secondary/40"
                         >
                           <Checkbox
                             checked={addonIds.includes(a.id)}
-                            onCheckedChange={() => toggleAddon(a.id)}
-                            className="mt-0.5"
+                            className="pointer-events-none mt-0.5"
                           />
                           <span className="flex-1">
                             <span className="flex items-center justify-between gap-3">

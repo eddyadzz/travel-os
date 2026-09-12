@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/lib/db.server";
-import { DEFAULT_TENANT_SLUG } from "@/lib/tenant-context";
+import { getDefaultTenantId } from "@/lib/tenant-context.server";
 
 export type DemoLoadResult = {
   branded: boolean;
@@ -48,10 +48,21 @@ const DEMO_CONTENT = {
   ],
   aboutSummary:
     "Paradise Holidays Maldives is a full-service travel agency — resorts, guesthouses and liveaboards with transparent pricing, instant quotes and a fully digital booking experience.",
+  marketingBlocks: {
+    belowHero: {
+      enabled: true,
+      title: "Complimentary speedboat transfers this season",
+      subtitle:
+        "Reserve any resort villa for five nights or more and we'll include the round-trip speedboat transfer for two — worth up to $1,100.",
+      buttonLabel: "Search availability",
+      buttonUrl: "/search",
+    },
+  },
 };
 
 async function defaultTenant() {
-  const tenant = await db.tenant.findUnique({ where: { slug: DEFAULT_TENANT_SLUG } });
+  const id = await getDefaultTenantId();
+  const tenant = await db.tenant.findUnique({ where: { id } });
   if (!tenant) throw new Error("Default tenant not found.");
   return tenant;
 }

@@ -27,7 +27,7 @@ import {
 } from "@/lib/api/cms";
 import { listProperties, updateProperty } from "@/lib/api/properties";
 import { ImageDropzone } from "@/components/image-dropzone";
-import type { CmsPageDTO, PropertyDTO, SiteContentData } from "@/lib/types";
+import type { CmsPageDTO, MarketingBlock, PropertyDTO, SiteContentData } from "@/lib/types";
 
 export const Route = createFileRoute("/cms")({
   loader: async () => getCmsAdmin(),
@@ -85,6 +85,11 @@ function CmsPage() {
     testimonials: JSON.stringify(c.testimonials ?? [], null, 2),
     aboutSummary: c.aboutSummary ?? "",
   });
+  const emptyBlock = (): MarketingBlock => ({ enabled: false, title: "" });
+  const [blocks, setBlocks] = useState({
+    belowHero: c.marketingBlocks?.belowHero ?? emptyBlock(),
+    aboveFooter: c.marketingBlocks?.aboveFooter ?? emptyBlock(),
+  });
 
   // Branding form
   const b = data.branding;
@@ -129,6 +134,10 @@ function CmsPage() {
             .filter(Boolean),
           testimonials: testimonials ?? [],
           aboutSummary: hero.aboutSummary,
+          marketingBlocks: {
+            belowHero: blocks.belowHero,
+            aboveFooter: blocks.aboveFooter,
+          },
         },
       });
       toast.success("Homepage saved");
@@ -331,6 +340,24 @@ function CmsPage() {
                 />
               </div>
             </div>
+
+            <h2 className="mt-8 font-semibold">Marketing blocks</h2>
+            <p className="text-sm text-muted-foreground">
+              Optional promotional sections on the homepage — disabled blocks leave no gap.
+            </p>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <BlockEditor
+                label="Below hero"
+                value={blocks.belowHero}
+                onChange={(v) => setBlocks((b) => ({ ...b, belowHero: v }))}
+              />
+              <BlockEditor
+                label="Above footer"
+                value={blocks.aboveFooter}
+                onChange={(v) => setBlocks((b) => ({ ...b, aboveFooter: v }))}
+              />
+            </div>
+
             <Button className="mt-4" onClick={saveHome} disabled={busy}>
               <Save className="size-4" /> Save homepage
             </Button>
@@ -598,6 +625,110 @@ function CmsPage() {
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+function BlockEditor({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: MarketingBlock;
+  onChange: (v: MarketingBlock) => void;
+}) {
+  const set = (patch: Partial<Record<keyof MarketingBlock, string | boolean | undefined>>) => {
+    const clean = Object.fromEntries(
+      Object.entries(patch).filter(([, v]) => v !== undefined),
+    ) as Partial<MarketingBlock>;
+    onChange({ ...value, ...clean });
+  };
+  return (
+    <div className={`rounded-xl border p-4 ${value.enabled ? "" : "opacity-70"}`}>
+      <label className="flex items-center gap-2 font-medium">
+        <input
+          type="checkbox"
+          checked={value.enabled}
+          onChange={(e) => set({ enabled: e.target.checked })}
+        />
+        {label}
+      </label>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-1.5">
+          <Label>Title</Label>
+          <Input value={value.title} onChange={(e) => set({ title: e.target.value })} />
+        </div>
+        <div className="grid gap-1.5">
+          <Label>Subtitle</Label>
+          <Input value={value.subtitle ?? ""} onChange={(e) => set({ subtitle: e.target.value })} />
+        </div>
+        <div className="sm:col-span-2 grid gap-1.5">
+          <Label>Image URL</Label>
+          <Input
+            value={value.image ?? ""}
+            placeholder="https://…"
+            onChange={(e) => set({ image: e.target.value })}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label>Button label</Label>
+          <Input
+            value={value.buttonLabel ?? ""}
+            onChange={(e) => set({ buttonLabel: e.target.value })}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label>Button URL</Label>
+          <Input
+            value={value.buttonUrl ?? ""}
+            placeholder="/properties or https://…"
+            onChange={(e) => set({ buttonUrl: e.target.value })}
+          />
+        </div>
+        <div className="grid gap-1.5">
+          <Label>Background color</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={value.backgroundColor ?? "#0f766e"}
+              onChange={(e) => set({ backgroundColor: e.target.value })}
+              className="h-9 w-12 rounded border"
+            />
+            <Input
+              value={value.backgroundColor ?? ""}
+              placeholder="default gradient"
+              onChange={(e) => set({ backgroundColor: e.target.value })}
+            />
+          </div>
+        </div>
+        <div className="sm:col-span-2 grid gap-1.5">
+          <Label>Schedule (optional)</Label>
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              type="date"
+              className="min-w-0 flex-1"
+              value={value.startDate ?? ""}
+              onChange={(e) => set({ startDate: e.target.value || undefined })}
+            />
+            <span className="text-muted-foreground">→</span>
+            <Input
+              type="date"
+              className="min-w-0 flex-1"
+              value={value.endDate ?? ""}
+              onChange={(e) => set({ endDate: e.target.value || undefined })}
+            />
+          </div>
+        </div>
+      </div>
+      <label className="mt-3 flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={value.openInNewTab ?? false}
+          onChange={(e) => set({ openInNewTab: e.target.checked })}
+        />
+        Open button in new tab
+      </label>
     </div>
   );
 }

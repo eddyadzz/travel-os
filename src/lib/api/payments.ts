@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/lib/db.server";
-import { uploadObject } from "@/lib/storage/object-storage";
+import { uploadObject } from "@/lib/storage/object-storage.server";
 import {
   notifyPaymentRejected,
   notifyPaymentRequest,

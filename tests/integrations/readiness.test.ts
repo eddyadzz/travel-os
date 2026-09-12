@@ -15,8 +15,8 @@ const { mockDb } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/db.server", () => ({ db: mockDb }));
-vi.mock("@/lib/api/deploy", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/api/deploy")>();
+vi.mock("@/lib/backup.server", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/backup.server")>();
   return {
     ...actual,
     listBackups: vi.fn().mockResolvedValue([
@@ -88,8 +88,8 @@ describe("runReadinessCheck", () => {
   });
 
   it("fails the backup check when the archive does not verify", async () => {
-    const deploy = await import("@/lib/api/deploy");
-    (deploy.verifyBackup as ReturnType<typeof vi.fn>).mockReturnValue({
+    const backupModule = await import("@/lib/backup.server");
+    (backupModule.verifyBackup as ReturnType<typeof vi.fn>).mockReturnValue({
       valid: false,
       tables: 0,
       rows: 0,

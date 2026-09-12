@@ -955,6 +955,23 @@ export type SiteContentData = {
   seoTitleTemplate?: string;
   seoDescriptionTemplate?: string;
   ogImageUrl?: string;
+  marketingBlocks?: {
+    belowHero?: MarketingBlock;
+    aboveFooter?: MarketingBlock;
+  };
+};
+
+export type MarketingBlock = {
+  enabled: boolean;
+  title: string;
+  subtitle?: string;
+  image?: string;
+  buttonLabel?: string;
+  buttonUrl?: string;
+  backgroundColor?: string;
+  openInNewTab?: boolean;
+  startDate?: string;
+  endDate?: string;
 };
 
 export type PublicSiteDTO = {

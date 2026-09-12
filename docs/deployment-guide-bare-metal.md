@@ -96,7 +96,7 @@ The app loads `.env` from the project root automatically (via `dotenv`).
 | `EMAIL_FROM` | prod | sender, e.g. `bookings@client.mv` |
 | `TENANT_BASE_DOMAIN` | no | base domain for tenant subdomains, e.g. `oceanatlas.mv` |
 | `PORT` | no | app port (default 3000; nginx proxies to this) |
-| `R2_ACCOUNT_ID` | no | Cloudflare R2 — all five must be set to enable object storage |
+| `R2_ENDPOINT` | no | S3 endpoint, e.g. `https://<account-id>.r2.cloudflarestorage.com` (all five `R2_*` must be set to enable object storage) |
 | `R2_ACCESS_KEY_ID` | no | |
 | `R2_SECRET_ACCESS_KEY` | no | |
 | `R2_BUCKET` | no | |

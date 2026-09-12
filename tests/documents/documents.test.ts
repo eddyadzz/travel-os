@@ -15,7 +15,7 @@ vi.mock("@/lib/db.server", () => ({ db: mockDb }));
 vi.mock("@/lib/notifications/queue", () => ({
   processEmail: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("@/lib/documents/storage", () => ({
+vi.mock("@/lib/documents/storage.server", () => ({
   storeDocument: vi.fn().mockResolvedValue({ url: "/uploads/documents/test.pdf" }),
 }));
 vi.mock("@/lib/documents/generator", async (importOriginal) => {

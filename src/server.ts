@@ -3,7 +3,7 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 import { startScheduler } from "./lib/api/scheduler";
-import { getDefaultTenantId, resolveTenantIdFromHost, runWithTenant } from "./lib/tenant-context";
+import { getDefaultTenantId, resolveTenantIdFromHost, runWithTenant } from "./lib/tenant-context.server";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;

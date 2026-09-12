@@ -1,5 +1,5 @@
 import { db } from "@/lib/db.server";
-import { getDefaultTenantId } from "@/lib/tenant-context";
+import { getDefaultTenantId } from "@/lib/tenant-context.server";
 import type {
   ChannelAvailability,
   ChannelRate,
