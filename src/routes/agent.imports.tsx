@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useRef, useState } from "react";
 import {
   AlertTriangle,
@@ -28,6 +29,7 @@ import type { AvailabilityPreview, ImportJobDTO, RatePreview } from "@/lib/impor
 import type { ImportChangeDTO } from "@/lib/types";
 
 export const Route = createFileRoute("/agent/imports")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const jobs = await listImportJobs();
     return { jobs };

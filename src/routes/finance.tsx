@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Download, FileSpreadsheet, FileText, BookOpen, Loader2, RefreshCw } from "lucide-react";
@@ -27,6 +28,7 @@ import {
 import type { FinanceDashboardDTO, FinanceReportType } from "@/lib/types";
 
 export const Route = createFileRoute("/finance")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const to = new Date();
     const from = new Date(to.getTime() - 90 * 86_400_000);

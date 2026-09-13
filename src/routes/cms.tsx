@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -12,6 +13,8 @@ import {
   Eye,
   Pencil,
   Images,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +33,7 @@ import { ImageDropzone } from "@/components/image-dropzone";
 import type { CmsPageDTO, MarketingBlock, PropertyDTO, SiteContentData } from "@/lib/types";
 
 export const Route = createFileRoute("/cms")({
+  beforeLoad: requireAuth,
   loader: async () => getCmsAdmin(),
   head: () => ({
     meta: [{ title: "Website CMS | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
@@ -82,9 +86,21 @@ function CmsPage() {
     heroCtaLabel: c.heroCtaLabel ?? "",
     heroCtaTarget: c.heroCtaTarget ?? "",
     featuredPropertySlugs: (c.featuredPropertySlugs ?? []).join(", "),
-    testimonials: JSON.stringify(c.testimonials ?? [], null, 2),
     aboutSummary: c.aboutSummary ?? "",
   });
+  const [testimonials, setTestimonials] = useState<{ name: string; quote: string; role?: string }[]>(
+    c.testimonials ?? [],
+  );
+  const moveTestimonial = (i: number, dir: number) =>
+    setTestimonials((list) => {
+      const next = [...list];
+      const j = i + dir;
+      if (j < 0 || j >= next.length) return list;
+      const temp = next[i]!;
+      next[i] = next[j]!;
+      next[j] = temp;
+      return next;
+    });
   const emptyBlock = (): MarketingBlock => ({ enabled: false, title: "" });
   const [blocks, setBlocks] = useState({
     belowHero: c.marketingBlocks?.belowHero ?? emptyBlock(),
@@ -117,10 +133,6 @@ function CmsPage() {
   const saveHome = async () => {
     setBusy(true);
     try {
-      let testimonials: SiteContentData["testimonials"] = [];
-      if (hero.testimonials.trim()) {
-        testimonials = JSON.parse(hero.testimonials);
-      }
       await saveSiteContent({
         data: {
           heroEyebrow: hero.heroEyebrow,
@@ -132,7 +144,7 @@ function CmsPage() {
             .split(",")
             .map((s) => s.trim())
             .filter(Boolean),
-          testimonials: testimonials ?? [],
+          testimonials: testimonials.filter((t) => t.name.trim() || t.quote.trim()),
           aboutSummary: hero.aboutSummary,
           marketingBlocks: {
             belowHero: blocks.belowHero,
@@ -143,7 +155,7 @@ function CmsPage() {
       toast.success("Homepage saved");
       await refresh();
     } catch {
-      toast.error('Testimonials must be valid JSON: [{"name":"...","quote":"..."}]');
+      toast.error("Could not save homepage");
     } finally {
       setBusy(false);
     }
@@ -323,13 +335,84 @@ function CmsPage() {
                 />
               </div>
               <div className="sm:col-span-2 grid gap-1.5">
-                <Label>Testimonials (JSON)</Label>
-                <Textarea
-                  rows={5}
-                  className="font-mono text-xs"
-                  value={hero.testimonials}
-                  onChange={(e) => setHero({ ...hero, testimonials: e.target.value })}
-                />
+                <div className="flex items-center justify-between">
+                  <Label>Testimonials</Label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setTestimonials((t) => [...t, { name: "", quote: "", role: "" }])}
+                  >
+                    <Plus className="size-4" /> Add
+                  </Button>
+                </div>
+                {testimonials.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No testimonials yet.</p>
+                )}
+                <div className="space-y-2">
+                  {testimonials.map((t, i) => (
+                    <div key={i} className="space-y-2 rounded-lg border p-3">
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <Input
+                          placeholder="Name"
+                          value={t.name}
+                          onChange={(e) =>
+                            setTestimonials((list) =>
+                              list.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)),
+                            )
+                          }
+                        />
+                        <Input
+                          placeholder="Role (e.g. Overwater villa · Sep 2026)"
+                          value={t.role ?? ""}
+                          onChange={(e) =>
+                            setTestimonials((list) =>
+                              list.map((x, j) => (j === i ? { ...x, role: e.target.value } : x)),
+                            )
+                          }
+                        />
+                      </div>
+                      <Textarea
+                        rows={2}
+                        placeholder="Quote"
+                        value={t.quote}
+                        onChange={(e) =>
+                          setTestimonials((list) =>
+                            list.map((x, j) => (j === i ? { ...x, quote: e.target.value } : x)),
+                          )
+                        }
+                      />
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          disabled={i === 0}
+                          onClick={() => moveTestimonial(i, -1)}
+                        >
+                          <ArrowUp className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          disabled={i === testimonials.length - 1}
+                          onClick={() => moveTestimonial(i, 1)}
+                        >
+                          <ArrowDown className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setTestimonials((list) => list.filter((_, j) => j !== i))}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="sm:col-span-2 grid gap-1.5">
                 <Label>About summary</Label>

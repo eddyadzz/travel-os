@@ -147,6 +147,46 @@ export const createSupplier = createServerFn({ method: "POST" })
     return toSupplierDTO(supplier);
   });
 
+export const listSuppliersAdmin = createServerFn({ method: "GET" }).handler(async () => {
+  const suppliers = await db.supplier.findMany({ orderBy: { name: "asc" } });
+  return suppliers.map(toSupplierDTO);
+});
+
+export const updateSupplier = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      id: string;
+      name?: string;
+      type?: SupplierType;
+      email?: string;
+      phone?: string;
+      contactPerson?: string;
+      active?: boolean;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    const supplier = await db.supplier.update({
+      where: { id: data.id },
+      data: {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.type !== undefined ? { type: data.type } : {}),
+        ...(data.email !== undefined ? { email: data.email || null } : {}),
+        ...(data.phone !== undefined ? { phone: data.phone || null } : {}),
+        ...(data.contactPerson !== undefined ? { contactPerson: data.contactPerson || null } : {}),
+        ...(data.active !== undefined ? { active: data.active } : {}),
+      },
+    });
+    return toSupplierDTO(supplier);
+  });
+
+// Soft delete: suppliers keep booking/contract history, so deactivate only.
+export const deleteSupplier = createServerFn({ method: "POST" })
+  .validator((id: string) => id)
+  .handler(async ({ data: id }) => {
+    await db.supplier.update({ where: { id }, data: { active: false } });
+    return { ok: true };
+  });
+
 // Supplier portal access ------------------------------------------------------------------------
 
 function portalLinkFor(token: string) {

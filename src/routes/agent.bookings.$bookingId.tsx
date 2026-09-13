@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import {
   ArrowLeft,
@@ -69,6 +70,7 @@ import type { AgentDTO, BookingDetailDTO } from "@/lib/types";
 import { money } from "@/lib/pricing";
 
 export const Route = createFileRoute("/agent/bookings/$bookingId")({
+  beforeLoad: requireAuth,
   loader: async ({ params }) => {
     const booking = await getBooking({ data: params.bookingId });
     if (!booking) throw notFound();

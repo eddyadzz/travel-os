@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Percent, Wallet, Plus, Trash2, RefreshCw, BadgePercent } from "lucide-react";
@@ -32,6 +33,7 @@ import { listAgentsWithRates, setAgentCommissionRate } from "@/lib/api/finance";
 import { DEFAULT_MARKUP } from "@/lib/markup";
 
 export const Route = createFileRoute("/revenue")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const [rules, agents] = await Promise.all([listMarkupRules(), listAgentsWithRates()]);
     return { rules, agents };

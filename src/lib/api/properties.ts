@@ -119,6 +119,22 @@ export const getPropertyById = createServerFn({ method: "GET" })
     return property ? toPropertyDTO(property) : null;
   });
 
+export const listPropertiesAdmin = createServerFn({ method: "GET" }).handler(async () => {
+  const properties = await db.property.findMany({
+    include: propertyInclude,
+    orderBy: [{ featured: "desc" }, { rating: "desc" }],
+  });
+  return properties.map((p) => ({ ...toPropertyDTO(p), status: p.status }));
+});
+
+// Soft delete: properties hold booking history, so hide rather than destroy.
+export const deleteProperty = createServerFn({ method: "POST" })
+  .validator((id: string) => id)
+  .handler(async ({ data: id }) => {
+    await db.property.update({ where: { id }, data: { status: "HIDDEN" } });
+    return { ok: true };
+  });
+
 export type CreatePropertyInput = {
   slug: string;
   name: string;

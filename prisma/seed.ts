@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, Prisma, $Enums } from "../src/generated/prisma/client";
+import { hashPassword } from "../src/lib/crypto.server";
 
 // Seeds the TravelOS by Boliflow database with the same catalogue, add-ons, bookings
 // and imports the frontend currently serves from mock-data.ts.
@@ -758,7 +759,7 @@ async function main() {
       data: {
         email: u.email,
         fullName: u.fullName,
-        passwordHash: "REPLACE_WITH_BCRYPT_HASH",
+        passwordHash: hashPassword("changeme123"),
         role: u.role,
         tenantId: tenant.id,
       },

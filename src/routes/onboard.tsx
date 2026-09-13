@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -27,6 +28,7 @@ import { createBackupFn } from "@/lib/api/deploy";
 import type { ReadinessResult } from "@/lib/api/readiness";
 
 export const Route = createFileRoute("/onboard")({
+  beforeLoad: requireAuth,
   loader: async () => getSetupStatus(),
   head: () => ({
     meta: [{ title: "Client Onboarding | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],

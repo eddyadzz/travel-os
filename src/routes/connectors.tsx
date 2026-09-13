@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PlugZap, Plus, RefreshCw, Trash2, Radio, Power, Wifi, GitBranch } from "lucide-react";
@@ -28,6 +29,7 @@ import {
 import type { ConnectorCatalog } from "@/lib/connectors/types";
 
 export const Route = createFileRoute("/connectors")({
+  beforeLoad: requireAuth,
   loader: async () => listChannels(),
   head: () => ({
     meta: [{ title: "Supplier Channels | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],

@@ -1,7 +1,9 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { SiteHeader } from "@/components/site-header";
 
 export const Route = createFileRoute("/leads")({
+  beforeLoad: requireAuth,
   head: () => ({
     meta: [{ title: "Leads & CRM | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
   }),

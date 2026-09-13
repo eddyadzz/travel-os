@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { Mail, RefreshCw, CheckCircle2, XCircle, Download, Inbox, LinkIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -49,6 +50,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 export const Route = createFileRoute("/supplier-updates")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const [requests, metrics, scorecard, suppliers] = await Promise.all([
       listSupplierUpdateRequests(),

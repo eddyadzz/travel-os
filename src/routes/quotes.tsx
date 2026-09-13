@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { Plus, Send, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ import type { QuoteDTO } from "@/lib/types";
 import { money } from "@/lib/pricing";
 
 export const Route = createFileRoute("/quotes")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const quotes = await listQuotes();
     return { quotes };

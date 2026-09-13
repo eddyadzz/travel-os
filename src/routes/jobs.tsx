@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Play, RefreshCw, History, Activity, AlertTriangle, Clock } from "lucide-react";
@@ -16,6 +17,7 @@ import { getJobStats, listJobDefinitions, listJobRuns, runJobNowFn } from "@/lib
 import type { JobDefinitionDTO, JobRunDTO } from "@/lib/types";
 
 export const Route = createFileRoute("/jobs")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const [definitions, runs, stats] = await Promise.all([
       listJobDefinitions(),

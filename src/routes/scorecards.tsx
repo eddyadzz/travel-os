@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import {
   ShieldCheck,
@@ -24,6 +25,7 @@ import { getSupplierPerformance } from "@/lib/api/scorecards";
 import type { SupplierInsightRow } from "@/lib/types";
 
 export const Route = createFileRoute("/scorecards")({
+  beforeLoad: requireAuth,
   loader: async () => getSupplierPerformance(),
   head: () => ({
     meta: [{ title: "Supplier Scorecards | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],

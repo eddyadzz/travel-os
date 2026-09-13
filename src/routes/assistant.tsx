@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -38,6 +39,7 @@ import type {
 } from "@/lib/types";
 
 export const Route = createFileRoute("/assistant")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const [advice, leads] = await Promise.all([
       assistantOperationsAdvice(),

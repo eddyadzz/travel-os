@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { ArrowLeft, CheckCircle2, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -38,6 +39,7 @@ const STATUS_BADGE: Record<LeadStatus, string> = {
 };
 
 export const Route = createFileRoute("/leads/$leadId")({
+  beforeLoad: requireAuth,
   loader: async ({ params }) => {
     const lead = await getLead({ data: params.leadId });
     if (!lead) throw notFound();

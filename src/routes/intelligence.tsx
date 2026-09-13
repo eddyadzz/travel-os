@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import {
   TrendingUp,
@@ -26,6 +27,7 @@ import { getPredictiveDashboard } from "@/lib/api/predictive";
 import type { PredictiveDashboardDTO } from "@/lib/types";
 
 export const Route = createFileRoute("/intelligence")({
+  beforeLoad: requireAuth,
   loader: async () => getPredictiveDashboard(),
   head: () => ({
     meta: [

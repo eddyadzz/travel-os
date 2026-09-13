@@ -7,10 +7,9 @@ tracked so it is not forgotten and is tackled after the first demonstration.
 
 | # | Item | Why it matters | Notes |
 |---|------|----------------|-------|
-| 1 | **Tenant → Agency/Deployment terminology cleanup** | "Tenant" is SaaS language; each deployment is a dedicated agency, not a tenant in a shared app | Rename only in code/UI copy. No DB table renames before the demo (too risky). Start with user-facing strings, then internal identifiers |
-| 2 | **Remove remaining SaaS language from UI** | The product reads as single-agency; leftover "plan/limits/tenants" wording confuses owners | Sweep `PLAN_LIMITS`, plan selectors, `/admin/tenants` labels |
-| 3 | **Replace default "TravelOS by Boliflow" branding** | Every deployment ships with the default brand until the client replaces it | Ensure the onboarding wizard and readiness check make branding unmissable |
-| 4 | **R2 production validation** | Object storage is implemented but untested against a live bucket | Provide the real `R2_ACCESS_KEY_ID` (currently empty) and verify uploads reach the public URL |
+| 1 | **Tenant → Agency/Deployment terminology cleanup** | "Tenant" is SaaS language; each deployment is a dedicated agency, not a tenant in a shared app | The multi-tenant admin surface is gone; the internal `Tenant` model/`tenantId` fields still exist (they scope data + branding). Rename in code later if desired — no DB renames needed |
+| 2 | **Replace default "TravelOS by Boliflow" branding** | Every deployment ships with the default brand until the client replaces it | Ensure the onboarding wizard and readiness check make branding unmissable |
+| 3 | **R2 production validation** | Object storage is implemented but untested against a live bucket | Provide the real `R2_ACCESS_KEY_ID` (currently empty) and verify uploads reach the public URL |
 
 ## Lower priority
 
@@ -26,3 +25,7 @@ tracked so it is not forgotten and is tackled after the first demonstration.
 
 - Server/client boundary (top-level `node:*` imports) — fixed via `.server.ts` split.
 - Email dev mode — `RESEND_API_KEY` empty by default so a 403 cannot appear during a demo.
+- SaaS "agencies" layer — `/admin/tenants`, plans and usage limits removed; single-deployment product.
+- Staff authentication — email + password login, session cookie, protected back-office routes.
+- Supplier & catalogue CRUD — in-app management for suppliers, properties, rooms, rates and add-ons.
+- Testimonials — CMS list editor (add / remove / reorder) replaces the raw JSON field.

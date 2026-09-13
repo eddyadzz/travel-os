@@ -14,6 +14,7 @@ import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AutomationRouteImport } from './routes/automation'
 import { Route as AvailabilityRouteImport } from './routes/availability'
+import { Route as CatalogueRouteImport } from './routes/catalogue'
 import { Route as CmsRouteImport } from './routes/cms'
 import { Route as CommandRouteImport } from './routes/command'
 import { Route as ConnectorsRouteImport } from './routes/connectors'
@@ -23,16 +24,18 @@ import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as IntelligenceRouteImport } from './routes/intelligence'
 import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as LeadsRouteImport } from './routes/leads'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as OnboardRouteImport } from './routes/onboard'
 import { Route as QuotesRouteImport } from './routes/quotes'
 import { Route as RevenueRouteImport } from './routes/revenue'
 import { Route as ScorecardsRouteImport } from './routes/scorecards'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SupplierUpdatesRouteImport } from './routes/supplier-updates'
-import { Route as AdminTenantsRouteImport } from './routes/admin.tenants'
+import { Route as SuppliersRouteImport } from './routes/suppliers'
 import { Route as AgentIndexRouteImport } from './routes/agent.index'
 import { Route as AgentImportsRouteImport } from './routes/agent.imports'
 import { Route as BookingSuccessRouteImport } from './routes/booking.success'
+import { Route as CataloguePropertyIdRouteImport } from './routes/catalogue.$propertyId'
 import { Route as DestinationsIndexRouteImport } from './routes/destinations.index'
 import { Route as DestinationsAtollRouteImport } from './routes/destinations.$atoll'
 import { Route as LeadsIndexRouteImport } from './routes/leads.index'
@@ -68,6 +71,11 @@ const AutomationRoute = AutomationRouteImport.update({
 const AvailabilityRoute = AvailabilityRouteImport.update({
   id: '/availability',
   path: '/availability',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogueRoute = CatalogueRouteImport.update({
+  id: '/catalogue',
+  path: '/catalogue',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CmsRoute = CmsRouteImport.update({
@@ -115,6 +123,11 @@ const LeadsRoute = LeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardRoute = OnboardRouteImport.update({
   id: '/onboard',
   path: '/onboard',
@@ -145,9 +158,9 @@ const SupplierUpdatesRoute = SupplierUpdatesRouteImport.update({
   path: '/supplier-updates',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminTenantsRoute = AdminTenantsRouteImport.update({
-  id: '/admin/tenants',
-  path: '/admin/tenants',
+const SuppliersRoute = SuppliersRouteImport.update({
+  id: '/suppliers',
+  path: '/suppliers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentIndexRoute = AgentIndexRouteImport.update({
@@ -164,6 +177,11 @@ const BookingSuccessRoute = BookingSuccessRouteImport.update({
   id: '/booking/success',
   path: '/booking/success',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CataloguePropertyIdRoute = CataloguePropertyIdRouteImport.update({
+  id: '/$propertyId',
+  path: '/$propertyId',
+  getParentRoute: () => CatalogueRoute,
 } as any)
 const DestinationsIndexRoute = DestinationsIndexRouteImport.update({
   id: '/destinations/',
@@ -227,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AssistantRoute
   '/automation': typeof AutomationRoute
   '/availability': typeof AvailabilityRoute
+  '/catalogue': typeof CatalogueRouteWithChildren
   '/cms': typeof CmsRoute
   '/command': typeof CommandRoute
   '/connectors': typeof ConnectorsRoute
@@ -236,15 +255,17 @@ export interface FileRoutesByFullPath {
   '/intelligence': typeof IntelligenceRoute
   '/jobs': typeof JobsRoute
   '/leads': typeof LeadsRouteWithChildren
+  '/login': typeof LoginRoute
   '/onboard': typeof OnboardRoute
   '/quotes': typeof QuotesRoute
   '/revenue': typeof RevenueRoute
   '/scorecards': typeof ScorecardsRoute
   '/search': typeof SearchRoute
   '/supplier-updates': typeof SupplierUpdatesRoute
-  '/admin/tenants': typeof AdminTenantsRoute
+  '/suppliers': typeof SuppliersRoute
   '/agent/imports': typeof AgentImportsRoute
   '/booking/success': typeof BookingSuccessRoute
+  '/catalogue/$propertyId': typeof CataloguePropertyIdRoute
   '/destinations/$atoll': typeof DestinationsAtollRoute
   '/leads/$leadId': typeof LeadsLeadIdRoute
   '/pages/$slug': typeof PagesSlugRoute
@@ -264,6 +285,7 @@ export interface FileRoutesByTo {
   '/assistant': typeof AssistantRoute
   '/automation': typeof AutomationRoute
   '/availability': typeof AvailabilityRoute
+  '/catalogue': typeof CatalogueRouteWithChildren
   '/cms': typeof CmsRoute
   '/command': typeof CommandRoute
   '/connectors': typeof ConnectorsRoute
@@ -272,15 +294,17 @@ export interface FileRoutesByTo {
   '/finance': typeof FinanceRoute
   '/intelligence': typeof IntelligenceRoute
   '/jobs': typeof JobsRoute
+  '/login': typeof LoginRoute
   '/onboard': typeof OnboardRoute
   '/quotes': typeof QuotesRoute
   '/revenue': typeof RevenueRoute
   '/scorecards': typeof ScorecardsRoute
   '/search': typeof SearchRoute
   '/supplier-updates': typeof SupplierUpdatesRoute
-  '/admin/tenants': typeof AdminTenantsRoute
+  '/suppliers': typeof SuppliersRoute
   '/agent/imports': typeof AgentImportsRoute
   '/booking/success': typeof BookingSuccessRoute
+  '/catalogue/$propertyId': typeof CataloguePropertyIdRoute
   '/destinations/$atoll': typeof DestinationsAtollRoute
   '/leads/$leadId': typeof LeadsLeadIdRoute
   '/pages/$slug': typeof PagesSlugRoute
@@ -301,6 +325,7 @@ export interface FileRoutesById {
   '/assistant': typeof AssistantRoute
   '/automation': typeof AutomationRoute
   '/availability': typeof AvailabilityRoute
+  '/catalogue': typeof CatalogueRouteWithChildren
   '/cms': typeof CmsRoute
   '/command': typeof CommandRoute
   '/connectors': typeof ConnectorsRoute
@@ -310,15 +335,17 @@ export interface FileRoutesById {
   '/intelligence': typeof IntelligenceRoute
   '/jobs': typeof JobsRoute
   '/leads': typeof LeadsRouteWithChildren
+  '/login': typeof LoginRoute
   '/onboard': typeof OnboardRoute
   '/quotes': typeof QuotesRoute
   '/revenue': typeof RevenueRoute
   '/scorecards': typeof ScorecardsRoute
   '/search': typeof SearchRoute
   '/supplier-updates': typeof SupplierUpdatesRoute
-  '/admin/tenants': typeof AdminTenantsRoute
+  '/suppliers': typeof SuppliersRoute
   '/agent/imports': typeof AgentImportsRoute
   '/booking/success': typeof BookingSuccessRoute
+  '/catalogue/$propertyId': typeof CataloguePropertyIdRoute
   '/destinations/$atoll': typeof DestinationsAtollRoute
   '/leads/$leadId': typeof LeadsLeadIdRoute
   '/pages/$slug': typeof PagesSlugRoute
@@ -340,6 +367,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/automation'
     | '/availability'
+    | '/catalogue'
     | '/cms'
     | '/command'
     | '/connectors'
@@ -349,15 +377,17 @@ export interface FileRouteTypes {
     | '/intelligence'
     | '/jobs'
     | '/leads'
+    | '/login'
     | '/onboard'
     | '/quotes'
     | '/revenue'
     | '/scorecards'
     | '/search'
     | '/supplier-updates'
-    | '/admin/tenants'
+    | '/suppliers'
     | '/agent/imports'
     | '/booking/success'
+    | '/catalogue/$propertyId'
     | '/destinations/$atoll'
     | '/leads/$leadId'
     | '/pages/$slug'
@@ -377,6 +407,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/automation'
     | '/availability'
+    | '/catalogue'
     | '/cms'
     | '/command'
     | '/connectors'
@@ -385,15 +416,17 @@ export interface FileRouteTypes {
     | '/finance'
     | '/intelligence'
     | '/jobs'
+    | '/login'
     | '/onboard'
     | '/quotes'
     | '/revenue'
     | '/scorecards'
     | '/search'
     | '/supplier-updates'
-    | '/admin/tenants'
+    | '/suppliers'
     | '/agent/imports'
     | '/booking/success'
+    | '/catalogue/$propertyId'
     | '/destinations/$atoll'
     | '/leads/$leadId'
     | '/pages/$slug'
@@ -413,6 +446,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/automation'
     | '/availability'
+    | '/catalogue'
     | '/cms'
     | '/command'
     | '/connectors'
@@ -422,15 +456,17 @@ export interface FileRouteTypes {
     | '/intelligence'
     | '/jobs'
     | '/leads'
+    | '/login'
     | '/onboard'
     | '/quotes'
     | '/revenue'
     | '/scorecards'
     | '/search'
     | '/supplier-updates'
-    | '/admin/tenants'
+    | '/suppliers'
     | '/agent/imports'
     | '/booking/success'
+    | '/catalogue/$propertyId'
     | '/destinations/$atoll'
     | '/leads/$leadId'
     | '/pages/$slug'
@@ -451,6 +487,7 @@ export interface RootRouteChildren {
   AssistantRoute: typeof AssistantRoute
   AutomationRoute: typeof AutomationRoute
   AvailabilityRoute: typeof AvailabilityRoute
+  CatalogueRoute: typeof CatalogueRouteWithChildren
   CmsRoute: typeof CmsRoute
   CommandRoute: typeof CommandRoute
   ConnectorsRoute: typeof ConnectorsRoute
@@ -460,13 +497,14 @@ export interface RootRouteChildren {
   IntelligenceRoute: typeof IntelligenceRoute
   JobsRoute: typeof JobsRoute
   LeadsRoute: typeof LeadsRouteWithChildren
+  LoginRoute: typeof LoginRoute
   OnboardRoute: typeof OnboardRoute
   QuotesRoute: typeof QuotesRoute
   RevenueRoute: typeof RevenueRoute
   ScorecardsRoute: typeof ScorecardsRoute
   SearchRoute: typeof SearchRoute
   SupplierUpdatesRoute: typeof SupplierUpdatesRoute
-  AdminTenantsRoute: typeof AdminTenantsRoute
+  SuppliersRoute: typeof SuppliersRoute
   AgentImportsRoute: typeof AgentImportsRoute
   BookingSuccessRoute: typeof BookingSuccessRoute
   DestinationsAtollRoute: typeof DestinationsAtollRoute
@@ -516,6 +554,13 @@ declare module '@tanstack/react-router' {
       path: '/availability'
       fullPath: '/availability'
       preLoaderRoute: typeof AvailabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogue': {
+      id: '/catalogue'
+      path: '/catalogue'
+      fullPath: '/catalogue'
+      preLoaderRoute: typeof CatalogueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cms': {
@@ -581,6 +626,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboard': {
       id: '/onboard'
       path: '/onboard'
@@ -623,11 +675,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupplierUpdatesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/tenants': {
-      id: '/admin/tenants'
-      path: '/admin/tenants'
-      fullPath: '/admin/tenants'
-      preLoaderRoute: typeof AdminTenantsRouteImport
+    '/suppliers': {
+      id: '/suppliers'
+      path: '/suppliers'
+      fullPath: '/suppliers'
+      preLoaderRoute: typeof SuppliersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent/': {
@@ -650,6 +702,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/booking/success'
       preLoaderRoute: typeof BookingSuccessRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/catalogue/$propertyId': {
+      id: '/catalogue/$propertyId'
+      path: '/$propertyId'
+      fullPath: '/catalogue/$propertyId'
+      preLoaderRoute: typeof CataloguePropertyIdRouteImport
+      parentRoute: typeof CatalogueRoute
     }
     '/destinations/': {
       id: '/destinations/'
@@ -731,6 +790,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CatalogueRouteChildren {
+  CataloguePropertyIdRoute: typeof CataloguePropertyIdRoute
+}
+
+const CatalogueRouteChildren: CatalogueRouteChildren = {
+  CataloguePropertyIdRoute: CataloguePropertyIdRoute,
+}
+
+const CatalogueRouteWithChildren = CatalogueRoute._addFileChildren(
+  CatalogueRouteChildren,
+)
+
 interface LeadsRouteChildren {
   LeadsLeadIdRoute: typeof LeadsLeadIdRoute
   LeadsIndexRoute: typeof LeadsIndexRoute
@@ -749,6 +820,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssistantRoute: AssistantRoute,
   AutomationRoute: AutomationRoute,
   AvailabilityRoute: AvailabilityRoute,
+  CatalogueRoute: CatalogueRouteWithChildren,
   CmsRoute: CmsRoute,
   CommandRoute: CommandRoute,
   ConnectorsRoute: ConnectorsRoute,
@@ -758,13 +830,14 @@ const rootRouteChildren: RootRouteChildren = {
   IntelligenceRoute: IntelligenceRoute,
   JobsRoute: JobsRoute,
   LeadsRoute: LeadsRouteWithChildren,
+  LoginRoute: LoginRoute,
   OnboardRoute: OnboardRoute,
   QuotesRoute: QuotesRoute,
   RevenueRoute: RevenueRoute,
   ScorecardsRoute: ScorecardsRoute,
   SearchRoute: SearchRoute,
   SupplierUpdatesRoute: SupplierUpdatesRoute,
-  AdminTenantsRoute: AdminTenantsRoute,
+  SuppliersRoute: SuppliersRoute,
   AgentImportsRoute: AgentImportsRoute,
   BookingSuccessRoute: BookingSuccessRoute,
   DestinationsAtollRoute: DestinationsAtollRoute,

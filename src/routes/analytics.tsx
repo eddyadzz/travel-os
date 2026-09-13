@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useMemo, useState } from "react";
 import { Download, TrendingUp, Wallet, CheckCircle2, BarChart3 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -46,6 +47,7 @@ function presetRange(preset: RangePreset): DateRange {
 }
 
 export const Route = createFileRoute("/analytics")({
+  beforeLoad: requireAuth,
   validateSearch: (search: Record<string, unknown>) => ({
     range: (typeof search["range"] === "string" ? search["range"] : "30d") as RangePreset,
   }),

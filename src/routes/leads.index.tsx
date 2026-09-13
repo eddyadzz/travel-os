@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { Plus, ArrowRight, Inbox, FileText, Clock4, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -48,6 +49,7 @@ const STATUS_BADGE: Record<LeadStatus, string> = {
 };
 
 export const Route = createFileRoute("/leads/")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const [leads, metrics] = await Promise.all([listLeads(), getCrmMetrics()]);
     return { leads, metrics };

@@ -1,9 +1,10 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Palmtree, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { getPublicSite } from "@/lib/api/cms";
+import { getCurrentUser, logout, type AuthUser } from "@/lib/api/auth";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -13,7 +14,9 @@ const nav = [
 ];
 
 export function SiteHeader() {
+  const navigate = useNavigate();
   const [brand, setBrand] = useState<{ name: string; logoUrl?: string } | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
     getPublicSite()
@@ -24,7 +27,16 @@ export function SiteHeader() {
         }),
       )
       .catch(() => {});
+    getCurrentUser()
+      .then(setUser)
+      .catch(() => {});
   }, []);
+
+  const signOut = async () => {
+    await logout();
+    setUser(null);
+    await navigate({ to: "/" });
+  };
 
   return (
     <header className="sticky top-0 z-50 surface-glass">
@@ -59,9 +71,20 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link to="/agent">Agent login</Link>
-          </Button>
+          {user ? (
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                <Link to="/agent">Dashboard</Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={signOut}>
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Link to="/login">Sign in</Link>
+            </Button>
+          )}
           <Button asChild size="sm">
             <Link to="/properties" search={{ type: "all" }}>
               Plan a trip

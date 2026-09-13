@@ -693,34 +693,6 @@ export type ExcelExportResult = { filename: string; base64: string };
 export type FinanceReportType = "P&L" | "OUTSTANDING" | "DEPOSITS" | "LEDGER" | "AGENTS";
 export type AccountingFormat = "QUICKBOOKS" | "XERO";
 
-export type PlanType = "STARTER" | "PROFESSIONAL" | "ENTERPRISE";
-
-export type TenantDTO = {
-  id: string;
-  name: string;
-  slug: string;
-  plan: PlanType;
-  logoUrl?: string;
-  primaryColor?: string;
-  accentColor?: string;
-  emailFrom?: string;
-  customDomain?: string;
-  active: boolean;
-  userCount: number;
-  createdAt: string;
-};
-
-export type TenantUsageDTO = {
-  tenantId: string;
-  plan: PlanType;
-  bookingsYear: number;
-  leads: number;
-  users: number;
-  attachments: number;
-  limits: { bookingsPerYear: number; leads: number; users: number };
-  withinLimits: boolean;
-};
-
 export type TenantBrandingDTO = {
   tenantId: string;
   name: string;
@@ -729,18 +701,6 @@ export type TenantBrandingDTO = {
   accentColor?: string;
   fontFamily?: string;
   emailFrom?: string;
-};
-
-export type CreateTenantInput = {
-  name: string;
-  slug: string;
-  plan?: PlanType;
-  logoUrl?: string;
-  primaryColor?: string;
-  customDomain?: string;
-  adminName: string;
-  adminEmail: string;
-  adminPassword?: string;
 };
 
 export type InboundEmailInput = {

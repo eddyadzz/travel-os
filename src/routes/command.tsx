@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import {
   LayoutDashboard,
@@ -26,6 +27,7 @@ import { getCommandCenter } from "@/lib/api/command";
 import type { CommandCenterDTO } from "@/lib/types";
 
 export const Route = createFileRoute("/command")({
+  beforeLoad: requireAuth,
   loader: async () => getCommandCenter(),
   head: () => ({
     meta: [{ title: "Command Center | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],

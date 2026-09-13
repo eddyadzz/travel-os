@@ -6,6 +6,10 @@ prospect landing on the public site through to a paid booking and the back offic
 Load the demo data first (see [First-Time Setup](first-time-setup.md)), then walk
 this path top to bottom.
 
+> **Sign in** before the back-office steps (8+). The agent console, CMS, catalogue,
+> suppliers and deployment toolkit are behind a login. Seeded demo user:
+> `admin@oceanatlas.mv` / `changeme123`.
+
 ## The flow
 
 ```
@@ -51,11 +55,16 @@ Deployment Toolkit
 ### 10. Intelligence — `/intelligence`, `/scorecards`, `/command`
 - Show forecasts, lead-source analytics, supplier risk and the daily command center.
 
-### 11. CMS — `/cms`
-- Edit a headline or enable a promotional block and reload the homepage to show the
-  change live — this is the most tangible feature for a travel-business owner.
+### 11. Catalogue & suppliers — `/catalogue`, `/suppliers`
+- Add a supplier and a property live; show rooms, rates and add-ons being created
+  in-app (no import required).
 
-### 12. Deployment toolkit — `/deploy`
+### 12. CMS — `/cms`
+- Edit a headline, add/reorder a testimonial, or enable a promotional block and
+  reload the homepage to show the change live — this is the most tangible feature
+  for a travel-business owner.
+
+### 13. Deployment toolkit — `/deploy`
 - Run the readiness check, create a backup, and show the onboarding checklist.
 
 ## Tips

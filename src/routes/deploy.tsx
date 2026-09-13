@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -46,6 +47,7 @@ import {
 import type { BackupInfo, DeployCheckItem, OnboardingChecklist } from "@/lib/types";
 
 export const Route = createFileRoute("/deploy")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const [checks, backups, checklist] = await Promise.all([
       validateEnvironmentFn(),

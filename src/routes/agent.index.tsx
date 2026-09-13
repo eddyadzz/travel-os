@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import {
   Inbox,
@@ -54,6 +55,7 @@ import type { BookingDTO, NotificationDTO } from "@/lib/types";
 import { money } from "@/lib/pricing";
 
 export const Route = createFileRoute("/agent/")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const bookings = await listBookings();
     const agents = await listAgents();
@@ -181,6 +183,16 @@ function AgentDashboard() {
               </Link>
             </Button>
             <Button asChild variant="outline">
+              <Link to="/catalogue">
+                <Building2 className="size-4" /> Catalogue
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/suppliers">
+                <Truck className="size-4" /> Suppliers
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
               <Link to="/assistant">
                 <Sparkles className="size-4" /> Assistant
               </Link>
@@ -207,17 +219,12 @@ function AgentDashboard() {
             </Button>
             <Button asChild variant="outline">
               <Link to="/scorecards">
-                <ShieldCheck className="size-4" /> Suppliers
+                <ShieldCheck className="size-4" /> Scorecards
               </Link>
             </Button>
             <Button asChild variant="outline">
               <Link to="/revenue">
                 <Percent className="size-4" /> Revenue
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/admin/tenants">
-                <Building2 className="size-4" /> Agencies
               </Link>
             </Button>
             <Button asChild variant="outline">

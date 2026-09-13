@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { requireAuth } from "@/lib/require-auth";
 import { useState } from "react";
 import { Zap, Mail, CalendarDays, Wallet, FileText, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -23,6 +24,7 @@ import {
 import type { AutomationLogDTO, AutomationRunSummary } from "@/lib/types";
 
 export const Route = createFileRoute("/automation")({
+  beforeLoad: requireAuth,
   loader: async () => {
     const logs = await listAutomationLogs();
     return { logs };
