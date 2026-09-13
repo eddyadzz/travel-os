@@ -26,6 +26,11 @@ const DEMO_CONTENT = {
     "Compare resorts, guesthouses and safari boats. Add spa, diving and transfers — see the estimate instantly and confirm with one request.",
   heroCtaLabel: "Search availability",
   heroCtaTarget: "/search",
+  heroCtas: [
+    { label: "Explore holidays", target: "/properties" },
+    { label: "View offers", target: "/#offers" },
+    { label: "Contact an expert", target: "/contact" },
+  ],
   featuredPropertySlugs: [],
   testimonials: [
     {
@@ -48,6 +53,30 @@ const DEMO_CONTENT = {
   ],
   aboutSummary:
     "Paradise Holidays Maldives is a full-service travel agency — resorts, guesthouses and liveaboards with transparent pricing, instant quotes and a fully digital booking experience.",
+  specialOffers: [
+    {
+      title: "Stay 4, Pay 3",
+      subtitle: "One complimentary night on ocean villas",
+      property: "Velaa Lagoon Resort & Spa",
+      description: "Extend a four-night stay to five for the price of four.",
+      discount: "1 night free",
+      image: "/images/prop-1.jpg",
+      ctaLabel: "View offer",
+      ctaUrl: "/properties",
+      active: true,
+    },
+    {
+      title: "Complimentary seaplane transfers",
+      subtitle: "Round-trip for two, included",
+      property: "Selected Noonu Atoll resorts",
+      description: "Book seven nights or more and we cover the seaplane both ways.",
+      discount: "Free transfers",
+      image: "/images/prop-2.jpg",
+      ctaLabel: "View offer",
+      ctaUrl: "/properties",
+      active: true,
+    },
+  ],
   marketingBlocks: {
     belowHero: {
       enabled: true,

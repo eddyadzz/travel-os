@@ -30,7 +30,14 @@ import {
 } from "@/lib/api/cms";
 import { listProperties, updateProperty } from "@/lib/api/properties";
 import { ImageDropzone } from "@/components/image-dropzone";
-import type { CmsPageDTO, MarketingBlock, PropertyDTO, SiteContentData } from "@/lib/types";
+import type {
+  CmsPageDTO,
+  MarketingBlock,
+  PropertyDTO,
+  SiteContentData,
+  SpecialOffer,
+  VideoAd,
+} from "@/lib/types";
 
 export const Route = createFileRoute("/cms")({
   beforeLoad: requireAuth,
@@ -106,6 +113,11 @@ function CmsPage() {
     belowHero: c.marketingBlocks?.belowHero ?? emptyBlock(),
     aboveFooter: c.marketingBlocks?.aboveFooter ?? emptyBlock(),
   });
+  const [heroCtas, setHeroCtas] = useState<Array<{ label: string; target: string }>>(
+    c.heroCtas ?? [],
+  );
+  const [videoAds, setVideoAds] = useState<VideoAd[]>(c.videoAds ?? []);
+  const [specialOffers, setSpecialOffers] = useState<SpecialOffer[]>(c.specialOffers ?? []);
 
   // Branding form
   const b = data.branding;
@@ -145,6 +157,9 @@ function CmsPage() {
             .map((s) => s.trim())
             .filter(Boolean),
           testimonials: testimonials.filter((t) => t.name.trim() || t.quote.trim()),
+          heroCtas: heroCtas.filter((x) => x.label.trim()),
+          videoAds,
+          specialOffers: specialOffers.filter((o) => o.title.trim()),
           aboutSummary: hero.aboutSummary,
           marketingBlocks: {
             belowHero: blocks.belowHero,
@@ -439,6 +454,225 @@ function CmsPage() {
                 value={blocks.aboveFooter}
                 onChange={(v) => setBlocks((b) => ({ ...b, aboveFooter: v }))}
               />
+            </div>
+
+            <h2 className="mt-8 font-semibold">Hero call-to-action buttons</h2>
+            <p className="text-sm text-muted-foreground">
+              Primary buttons under the headline — e.g. Explore Holidays → /properties.
+            </p>
+            <div className="mt-4 space-y-2">
+              {heroCtas.map((cta, i) => (
+                <div key={i} className="flex flex-wrap items-center gap-2">
+                  <Input
+                    className="min-w-40 flex-1"
+                    placeholder="Label"
+                    value={cta.label}
+                    onChange={(e) =>
+                      setHeroCtas((l) => l.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))
+                    }
+                  />
+                  <Input
+                    className="min-w-40 flex-1"
+                    placeholder="/properties"
+                    value={cta.target}
+                    onChange={(e) =>
+                      setHeroCtas((l) => l.map((x, j) => (j === i ? { ...x, target: e.target.value } : x)))
+                    }
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setHeroCtas((l) => l.filter((_, j) => j !== i))}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setHeroCtas((l) => [...l, { label: "", target: "/properties" }])}
+              >
+                <Plus className="size-4" /> Add button
+              </Button>
+            </div>
+
+            <h2 className="mt-8 font-semibold">Featured video ads</h2>
+            <p className="text-sm text-muted-foreground">
+              Autoplay-muted videos that rotate below the hero. Hidden when empty.
+            </p>
+            <div className="mt-4 space-y-3">
+              {videoAds.map((ad, i) => (
+                <div key={i} className="space-y-2 rounded-lg border p-3">
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Input
+                      placeholder="Title"
+                      value={ad.title}
+                      onChange={(e) =>
+                        setVideoAds((l) => l.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)))
+                      }
+                    />
+                    <Input
+                      placeholder="Video URL (mp4/webm)"
+                      value={ad.videoUrl}
+                      onChange={(e) =>
+                        setVideoAds((l) => l.map((x, j) => (j === i ? { ...x, videoUrl: e.target.value } : x)))
+                      }
+                    />
+                    <Input
+                      placeholder="Link URL (optional)"
+                      value={ad.linkUrl ?? ""}
+                      onChange={(e) =>
+                        setVideoAds((l) => l.map((x, j) => (j === i ? { ...x, linkUrl: e.target.value } : x)))
+                      }
+                    />
+                    <div className="flex items-center justify-end gap-3">
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={ad.active}
+                          onChange={(e) =>
+                            setVideoAds((l) =>
+                              l.map((x, j) => (j === i ? { ...x, active: e.target.checked } : x)),
+                            )
+                          }
+                        />
+                        Active
+                      </label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setVideoAds((l) => l.filter((_, j) => j !== i))}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setVideoAds((l) => [...l, { title: "", videoUrl: "", active: true }])
+                }
+              >
+                <Plus className="size-4" /> Add video
+              </Button>
+            </div>
+
+            <h2 className="mt-8 font-semibold">Seasonal special offers</h2>
+            <p className="text-sm text-muted-foreground">
+              Dedicated marketing offers shown in a section on the homepage.
+            </p>
+            <div className="mt-4 space-y-3">
+              {specialOffers.map((offer, i) => (
+                <div key={i} className="space-y-2 rounded-lg border p-3">
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <Input
+                      placeholder="Title"
+                      value={offer.title}
+                      onChange={(e) =>
+                        setSpecialOffers((l) =>
+                          l.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)),
+                        )
+                      }
+                    />
+                    <Input
+                      placeholder="Discount (e.g. Save 15%)"
+                      value={offer.discount ?? ""}
+                      onChange={(e) =>
+                        setSpecialOffers((l) =>
+                          l.map((x, j) => (j === i ? { ...x, discount: e.target.value } : x)),
+                        )
+                      }
+                    />
+                    <Input
+                      placeholder="Property (e.g. Velaa Island)"
+                      value={offer.property ?? ""}
+                      onChange={(e) =>
+                        setSpecialOffers((l) =>
+                          l.map((x, j) => (j === i ? { ...x, property: e.target.value } : x)),
+                        )
+                      }
+                    />
+                    <Input
+                      placeholder="Image URL (optional)"
+                      value={offer.image ?? ""}
+                      onChange={(e) =>
+                        setSpecialOffers((l) =>
+                          l.map((x, j) => (j === i ? { ...x, image: e.target.value } : x)),
+                        )
+                      }
+                    />
+                    <Input
+                      placeholder="CTA label (optional)"
+                      value={offer.ctaLabel ?? ""}
+                      onChange={(e) =>
+                        setSpecialOffers((l) =>
+                          l.map((x, j) => (j === i ? { ...x, ctaLabel: e.target.value } : x)),
+                        )
+                      }
+                    />
+                    <Input
+                      placeholder="CTA URL (optional)"
+                      value={offer.ctaUrl ?? ""}
+                      onChange={(e) =>
+                        setSpecialOffers((l) =>
+                          l.map((x, j) => (j === i ? { ...x, ctaUrl: e.target.value } : x)),
+                        )
+                      }
+                    />
+                    <Textarea
+                      className="sm:col-span-2 lg:col-span-3"
+                      rows={2}
+                      placeholder="Description"
+                      value={offer.description ?? ""}
+                      onChange={(e) =>
+                        setSpecialOffers((l) =>
+                          l.map((x, j) => (j === i ? { ...x, description: e.target.value } : x)),
+                        )
+                      }
+                    />
+                    <div className="flex items-center justify-end gap-3 sm:col-span-2 lg:col-span-3">
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={offer.active}
+                          onChange={(e) =>
+                            setSpecialOffers((l) =>
+                              l.map((x, j) => (j === i ? { ...x, active: e.target.checked } : x)),
+                            )
+                          }
+                        />
+                        Active
+                      </label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setSpecialOffers((l) => l.filter((_, j) => j !== i))}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setSpecialOffers((l) => [...l, { title: "", active: true }])
+                }
+              >
+                <Plus className="size-4" /> Add offer
+              </Button>
             </div>
 
             <Button className="mt-4" onClick={saveHome} disabled={busy}>

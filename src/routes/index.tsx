@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   ShieldCheck,
@@ -86,6 +86,21 @@ function Index() {
     : properties.filter((p) => p.featured);
   const propertyTypes = typeOrder.filter((t) => properties.some((p) => p.type === t));
 
+  const inWindow = (x?: { startDate?: string; endDate?: string }) => {
+    const today = new Date().toISOString().slice(0, 10);
+    if (x?.startDate && today < x.startDate) return false;
+    if (x?.endDate && today > x.endDate) return false;
+    return true;
+  };
+  const videoAds = (content.videoAds ?? []).filter((v) => v.active && inWindow(v));
+  const specialOffers = (content.specialOffers ?? []).filter((o) => o.active && inWindow(o));
+  const [adIndex, setAdIndex] = useState(0);
+  useEffect(() => {
+    if (videoAds.length <= 1) return;
+    const t = setInterval(() => setAdIndex((i) => (i + 1) % videoAds.length), 5000);
+    return () => clearInterval(t);
+  }, [videoAds.length]);
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -108,6 +123,20 @@ function Index() {
                 </p>
                 <h1 className="mt-4 text-4xl leading-[1.05] sm:text-6xl">{content.heroHeadline}</h1>
                 <p className="mt-5 max-w-xl text-base opacity-90">{content.heroSubheadline}</p>
+
+                {content.heroCtas && content.heroCtas.length > 0 && (
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    {content.heroCtas.map((cta, i) => (
+                      <Button key={i} asChild size="lg" variant={i === 0 ? "default" : "secondary"}>
+                        {cta.target.startsWith("/") ? (
+                          <Link to={cta.target}>{cta.label}</Link>
+                        ) : (
+                          <a href={cta.target}>{cta.label}</a>
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="mt-10 rounded-2xl border bg-card p-4 shadow-[var(--shadow-lift)] sm:p-5">
@@ -170,6 +199,49 @@ function Index() {
           </div>
         </section>
 
+        {videoAds.length > 0 && (
+          <section className="mx-auto max-w-6xl px-4 py-10">
+            <div className="relative overflow-hidden rounded-3xl bg-black">
+              <video
+                key={videoAds[adIndex]?.videoUrl}
+                src={videoAds[adIndex]?.videoUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="h-[300px] w-full object-cover sm:h-[420px]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-6 text-primary-foreground">
+                <p className="text-sm uppercase tracking-[0.2em] opacity-80">Featured</p>
+                <h2 className="mt-1 text-2xl font-semibold">{videoAds[adIndex]?.title}</h2>
+                {videoAds[adIndex]?.linkUrl && (
+                  <a
+                    href={videoAds[adIndex].linkUrl}
+                    className="mt-2 inline-flex items-center gap-1 text-sm underline"
+                  >
+                    View offer <ArrowRight className="size-4" />
+                  </a>
+                )}
+              </div>
+              {videoAds.length > 1 && (
+                <div className="absolute right-4 top-4 flex gap-1.5">
+                  {videoAds.map((_, i) => (
+                    <button
+                      key={i}
+                      aria-label={`Video ${i + 1}`}
+                      onClick={() => setAdIndex(i)}
+                      className={`h-2 rounded-full transition-all ${
+                        i === adIndex ? "w-6 bg-white" : "w-2 bg-white/50"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
         {/* Marketing block — below hero */}
         <PromotionalBlock block={content.marketingBlocks?.belowHero} />
 
@@ -220,6 +292,53 @@ function Index() {
             ))}
           </div>
         </section>
+
+        {specialOffers.length > 0 && (
+          <section className="mx-auto max-w-6xl px-4 pb-16" id="offers">
+            <h2 className="text-3xl">Seasonal special offers</h2>
+            <p className="mt-2 text-muted-foreground">
+              Limited-time deals our agents negotiate for you.
+            </p>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {specialOffers.map((offer, i) => (
+                <div
+                  key={i}
+                  className="overflow-hidden rounded-2xl border bg-card shadow-[var(--shadow-soft)]"
+                >
+                  {offer.image && (
+                    <img src={offer.image} alt={offer.title} className="h-44 w-full object-cover" />
+                  )}
+                  <div className="p-5">
+                    {offer.discount && (
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                        {offer.discount}
+                      </span>
+                    )}
+                    <h3 className="mt-3 text-lg font-semibold">{offer.title}</h3>
+                    {offer.subtitle && (
+                      <p className="mt-1 text-sm text-muted-foreground">{offer.subtitle}</p>
+                    )}
+                    {offer.property && <p className="mt-2 text-sm">{offer.property}</p>}
+                    {offer.description && (
+                      <p className="mt-2 text-sm text-muted-foreground">{offer.description}</p>
+                    )}
+                    {offer.offerPeriod && (
+                      <p className="mt-2 text-xs text-muted-foreground">{offer.offerPeriod}</p>
+                    )}
+                    {offer.ctaLabel && offer.ctaUrl && (
+                      <a
+                        href={offer.ctaUrl}
+                        className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary"
+                      >
+                        {offer.ctaLabel} <ArrowRight className="size-4" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="bg-secondary/40 py-16">
           <div className="mx-auto max-w-6xl px-4">

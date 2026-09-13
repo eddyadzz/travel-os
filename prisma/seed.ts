@@ -561,6 +561,8 @@ async function main() {
   await db.availability.deleteMany();
   await db.rate.deleteMany();
   await db.addon.deleteMany();
+  await db.promotion.deleteMany();
+  await db.package.deleteMany();
   await db.room.deleteMany();
   await db.property.deleteMany();
   await db.supplier.deleteMany();
@@ -583,6 +585,11 @@ async function main() {
       "Pick an island, choose your villa, add spa, diving and transfers — see the estimate instantly and send one complete request to our agents.",
     heroCtaLabel: "Search availability",
     heroCtaTarget: "/search",
+    heroCtas: [
+      { label: "Explore holidays", target: "/properties" },
+      { label: "View offers", target: "/#offers" },
+      { label: "Contact an expert", target: "/contact" },
+    ],
     featuredPropertySlugs: [],
     testimonials: [
       {
@@ -599,6 +606,41 @@ async function main() {
     ],
     aboutSummary:
       "We are a Maldives travel agency delivering resorts, guesthouses and safari boats with transparent pricing and a fully digital booking experience.",
+    specialOffers: [
+      {
+        title: "Stay 4, Pay 3",
+        subtitle: "One complimentary night on ocean villas",
+        property: "Velaa Lagoon Resort & Spa",
+        description: "Extend a four-night stay to five for the price of four.",
+        discount: "1 night free",
+        image: images.prop1,
+        ctaLabel: "View offer",
+        ctaUrl: "/properties",
+        active: true,
+      },
+      {
+        title: "Complimentary seaplane transfers",
+        subtitle: "Round-trip for two, included",
+        property: "Selected Noonu Atoll resorts",
+        description: "Book seven nights or more and we cover the seaplane both ways.",
+        discount: "Free transfers",
+        image: images.prop2,
+        ctaLabel: "View offer",
+        ctaUrl: "/properties",
+        active: true,
+      },
+      {
+        title: "Honeymoon benefits",
+        subtitle: "Sparkling wine, spa credit and a private dinner",
+        property: "All resorts",
+        description: "A welcome amenity, one spa treatment per person and a beach dinner.",
+        discount: "Honeymoon",
+        image: images.prop3,
+        ctaLabel: "View offer",
+        ctaUrl: "/properties",
+        active: true,
+      },
+    ],
     marketingBlocks: {
       belowHero: {
         enabled: true,
@@ -745,6 +787,60 @@ async function main() {
       });
       roomIds.set(`${p.slug}:${r.name}`, { propertyId: property.id, roomId: room.id });
     }
+  }
+
+  // Sample packages & promotions so the catalogue editor starts populated.
+  const velaaId = propertyIds.get("velaa-lagoon-resort");
+  const velaaBeachVilla = roomIds.get("velaa-lagoon-resort:Beach Villa with Pool")?.roomId;
+  if (velaaId) {
+    await db.package.createMany({
+      data: [
+        {
+          propertyId: velaaId,
+          name: "Honeymoon Package",
+          description:
+            "5 nights in a beach villa with breakfast, one couples spa ritual and a private beach dinner.",
+          price: 4950,
+          validFrom: new Date("2026-01-01"),
+          validTo: new Date("2027-12-31"),
+          included: ["Breakfast", "Couples spa ritual", "Private beach dinner"],
+          active: true,
+        },
+        {
+          propertyId: velaaId,
+          name: "Dive Discovery",
+          description: "7 nights half-board with 5 guided dives and equipment rental.",
+          price: 6200,
+          validFrom: new Date("2026-01-01"),
+          validTo: new Date("2027-12-31"),
+          included: ["Half board", "5 guided dives", "Equipment rental"],
+          active: true,
+        },
+      ],
+    });
+    await db.promotion.createMany({
+      data: [
+        {
+          propertyId: velaaId,
+          roomId: velaaBeachVilla ?? null,
+          name: "Stay 4 Pay 3",
+          discountType: "PERCENTAGE",
+          value: 25,
+          validFrom: new Date("2026-05-01"),
+          validTo: new Date("2026-09-30"),
+          active: true,
+        },
+        {
+          propertyId: velaaId,
+          name: "Early Bird 15%",
+          discountType: "PERCENTAGE",
+          value: 15,
+          validFrom: new Date("2026-01-01"),
+          validTo: new Date("2026-04-30"),
+          active: true,
+        },
+      ],
+    });
   }
 
   const users = [

@@ -11,13 +11,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   createAddon,
+  createPackage,
+  createPromotion,
   createRate,
   createRoom,
   deleteAddon,
+  deletePackage,
+  deletePromotion,
   deleteRate,
   deleteRoom,
   getPropertyAdmin,
   updateAddon,
+  updatePackage,
+  updatePromotion,
   updateRoom,
 } from "@/lib/api/catalogue";
 import { updateProperty } from "@/lib/api/properties";
@@ -27,6 +33,8 @@ type PropertyAdmin = NonNullable<Awaited<ReturnType<typeof getPropertyAdmin>>>;
 type RoomAdmin = PropertyAdmin["rooms"][number];
 type RateAdmin = RoomAdmin["rates"][number];
 type AddonAdmin = PropertyAdmin["addons"][number];
+type PackageAdmin = PropertyAdmin["packages"][number];
+type PromotionAdmin = PropertyAdmin["promotions"][number];
 
 const PROPERTY_TYPES = ["RESORT", "HOTEL", "GUESTHOUSE", "SAFARI_BOAT"];
 const ADDON_CATEGORIES = ["SPA", "DINING", "DIVING", "EXCURSION", "TRANSFER"];
@@ -62,6 +70,8 @@ function PropertyEditor() {
   const [editingRoom, setEditingRoom] = useState<RoomAdmin | null>(null);
   const [rateForm, setRateForm] = useState<{ roomId: string; validFrom: string; validTo: string; amount: string; season: string }>({ roomId: "", validFrom: "", validTo: "", amount: "", season: "" });
   const [addonForm, setAddonForm] = useState({ name: "", description: "", pricingType: "PER_PERSON", amount: "0", category: "SPA" });
+  const [packageForm, setPackageForm] = useState({ name: "", description: "", price: "", validFrom: "", validTo: "", included: "" });
+  const [promotionForm, setPromotionForm] = useState({ name: "", discountType: "PERCENTAGE", value: "", validFrom: "", validTo: "", roomId: "" });
 
   const reload = async () => {
     if (!property) return;
@@ -193,6 +203,66 @@ function PropertyEditor() {
     await reload();
   };
 
+  const savePackage = async () => {
+    if (!property || !packageForm.name.trim()) return;
+    const today = new Date().toISOString().slice(0, 10);
+    await createPackage({
+      data: {
+        propertyId: property.id,
+        name: packageForm.name,
+        ...(packageForm.description ? { description: packageForm.description } : {}),
+        price: Number(packageForm.price) || 0,
+        validFrom: packageForm.validFrom || today,
+        validTo: packageForm.validTo || "2030-12-31",
+        included: packageForm.included.split(",").map((s) => s.trim()).filter(Boolean),
+      },
+    });
+    toast.success("Package added");
+    setPackageForm({ name: "", description: "", price: "", validFrom: "", validTo: "", included: "" });
+    await reload();
+  };
+
+  const togglePackage = async (p: PackageAdmin) => {
+    await updatePackage({ data: { id: p.id, active: !p.active } });
+    await reload();
+  };
+
+  const removePackage = async (p: PackageAdmin) => {
+    await deletePackage({ data: p.id });
+    toast.success(`${p.name} removed`);
+    await reload();
+  };
+
+  const savePromotion = async () => {
+    if (!property || !promotionForm.name.trim()) return;
+    const today = new Date().toISOString().slice(0, 10);
+    await createPromotion({
+      data: {
+        propertyId: property.id,
+        ...(promotionForm.roomId ? { roomId: promotionForm.roomId } : {}),
+        name: promotionForm.name,
+        discountType: promotionForm.discountType,
+        value: Number(promotionForm.value) || 0,
+        validFrom: promotionForm.validFrom || today,
+        validTo: promotionForm.validTo || "2030-12-31",
+      },
+    });
+    toast.success("Promotion added");
+    setPromotionForm({ name: "", discountType: "PERCENTAGE", value: "", validFrom: "", validTo: "", roomId: "" });
+    await reload();
+  };
+
+  const togglePromotion = async (p: PromotionAdmin) => {
+    await updatePromotion({ data: { id: p.id, active: !p.active } });
+    await reload();
+  };
+
+  const removePromotion = async (p: PromotionAdmin) => {
+    await deletePromotion({ data: p.id });
+    toast.success(`${p.name} removed`);
+    await reload();
+  };
+
   if (!property) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center text-muted-foreground">
@@ -226,6 +296,8 @@ function PropertyEditor() {
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="rooms">Rooms & rates</TabsTrigger>
             <TabsTrigger value="addons">Add-ons</TabsTrigger>
+            <TabsTrigger value="packages">Packages</TabsTrigger>
+            <TabsTrigger value="promotions">Promotions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="mt-6 rounded-2xl border bg-card p-6">
@@ -514,6 +586,154 @@ function PropertyEditor() {
                           {a.active ? "Deactivate" : "Activate"}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => deleteAddon({ data: a.id }).then(reload)}>
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="packages" className="mt-6 space-y-6">
+            <div className="rounded-2xl border bg-card p-6">
+              <h2 className="flex items-center gap-2 font-semibold">
+                <Sparkles className="size-5" /> Add a package
+              </h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-1.5">
+                  <Label>Name</Label>
+                  <Input value={packageForm.name} placeholder="Honeymoon Package" onChange={(e) => setPackageForm({ ...packageForm, name: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Price (USD)</Label>
+                  <Input type="number" value={packageForm.price} onChange={(e) => setPackageForm({ ...packageForm, price: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Valid from</Label>
+                  <Input type="date" value={packageForm.validFrom} onChange={(e) => setPackageForm({ ...packageForm, validFrom: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Valid to</Label>
+                  <Input type="date" value={packageForm.validTo} onChange={(e) => setPackageForm({ ...packageForm, validTo: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5 sm:col-span-2 lg:col-span-4">
+                  <Label>Included (comma separated)</Label>
+                  <Input value={packageForm.included} placeholder="Breakfast, Seaplane transfer, Sunset cruise" onChange={(e) => setPackageForm({ ...packageForm, included: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5 sm:col-span-2 lg:col-span-4">
+                  <Label>Description</Label>
+                  <Textarea rows={2} value={packageForm.description} onChange={(e) => setPackageForm({ ...packageForm, description: e.target.value })} />
+                </div>
+              </div>
+              <Button className="mt-4" onClick={savePackage}>
+                <Plus className="size-4" /> Add package
+              </Button>
+            </div>
+
+            <div className="rounded-2xl border bg-card p-6">
+              {property.packages.length === 0 ? (
+                <p className="text-muted-foreground">No packages yet.</p>
+              ) : (
+                <div className="divide-y">
+                  {property.packages.map((p) => (
+                    <div key={p.id} className="flex items-center justify-between py-3">
+                      <div>
+                        <p className="font-medium">{p.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {money(p.price)} · {p.validFrom} → {p.validTo}
+                          {p.included.length > 0 && ` · ${p.included.join(", ")}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {p.active ? (
+                          <Badge className="bg-success text-success-foreground">Active</Badge>
+                        ) : (
+                          <Badge variant="outline">Inactive</Badge>
+                        )}
+                        <Button size="sm" variant="outline" onClick={() => togglePackage(p)}>
+                          {p.active ? "Deactivate" : "Activate"}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => removePackage(p)}>
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="promotions" className="mt-6 space-y-6">
+            <div className="rounded-2xl border bg-card p-6">
+              <h2 className="flex items-center gap-2 font-semibold">
+                <Tag className="size-5" /> Add a promotion
+              </h2>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="grid gap-1.5">
+                  <Label>Name</Label>
+                  <Input value={promotionForm.name} placeholder="Early Bird 15%" onChange={(e) => setPromotionForm({ ...promotionForm, name: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Type</Label>
+                  <select className="h-9 rounded-md border bg-background px-2" value={promotionForm.discountType} onChange={(e) => setPromotionForm({ ...promotionForm, discountType: e.target.value })}>
+                    <option value="PERCENTAGE">Percentage</option>
+                    <option value="FIXED">Fixed amount</option>
+                  </select>
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Value</Label>
+                  <Input type="number" value={promotionForm.value} onChange={(e) => setPromotionForm({ ...promotionForm, value: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Valid from</Label>
+                  <Input type="date" value={promotionForm.validFrom} onChange={(e) => setPromotionForm({ ...promotionForm, validFrom: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Valid to</Label>
+                  <Input type="date" value={promotionForm.validTo} onChange={(e) => setPromotionForm({ ...promotionForm, validTo: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Room (optional)</Label>
+                  <select className="h-9 rounded-md border bg-background px-2" value={promotionForm.roomId} onChange={(e) => setPromotionForm({ ...promotionForm, roomId: e.target.value })}>
+                    <option value="">All rooms</option>
+                    {property.rooms.map((r) => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <Button className="mt-4" onClick={savePromotion}>
+                <Plus className="size-4" /> Add promotion
+              </Button>
+            </div>
+
+            <div className="rounded-2xl border bg-card p-6">
+              {property.promotions.length === 0 ? (
+                <p className="text-muted-foreground">No promotions yet.</p>
+              ) : (
+                <div className="divide-y">
+                  {property.promotions.map((p) => (
+                    <div key={p.id} className="flex items-center justify-between py-3">
+                      <div>
+                        <p className="font-medium">{p.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {p.discountType === "PERCENTAGE" ? `${p.value}%` : money(p.value)} off · {p.validFrom} → {p.validTo}
+                          {p.room?.name ? ` · ${p.room.name}` : " · all rooms"}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {p.active ? (
+                          <Badge className="bg-success text-success-foreground">Active</Badge>
+                        ) : (
+                          <Badge variant="outline">Inactive</Badge>
+                        )}
+                        <Button size="sm" variant="outline" onClick={() => togglePromotion(p)}>
+                          {p.active ? "Deactivate" : "Activate"}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => removePromotion(p)}>
                           <Trash2 className="size-4" />
                         </Button>
                       </div>

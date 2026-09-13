@@ -900,6 +900,7 @@ export type SiteContentData = {
   heroSubheadline?: string;
   heroCtaLabel?: string;
   heroCtaTarget?: string;
+  heroCtas?: Array<{ label: string; target: string }>;
   featuredPropertySlugs?: string[];
   testimonials?: Array<{ name: string; quote: string; role?: string }>;
   aboutSummary?: string;
@@ -919,6 +920,8 @@ export type SiteContentData = {
     belowHero?: MarketingBlock;
     aboveFooter?: MarketingBlock;
   };
+  videoAds?: VideoAd[];
+  specialOffers?: SpecialOffer[];
 };
 
 export type MarketingBlock = {
@@ -930,6 +933,30 @@ export type MarketingBlock = {
   buttonUrl?: string;
   backgroundColor?: string;
   openInNewTab?: boolean;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type VideoAd = {
+  title: string;
+  videoUrl: string;
+  linkUrl?: string;
+  active: boolean;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type SpecialOffer = {
+  title: string;
+  subtitle?: string;
+  property?: string;
+  description?: string;
+  offerPeriod?: string;
+  discount?: string;
+  image?: string;
+  ctaLabel?: string;
+  ctaUrl?: string;
+  active: boolean;
   startDate?: string;
   endDate?: string;
 };

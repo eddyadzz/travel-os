@@ -18,6 +18,8 @@ export const getPropertyAdmin = createServerFn({ method: "GET" })
         },
         addons: { orderBy: { sortOrder: "asc" } },
         supplier: true,
+        packages: { orderBy: { createdAt: "desc" } },
+        promotions: { include: { room: true }, orderBy: { createdAt: "desc" } },
       },
     });
     if (!property) return null;
@@ -36,6 +38,19 @@ export const getPropertyAdmin = createServerFn({ method: "GET" })
         })),
       })),
       addons: property.addons.map((a) => ({ ...a, amount: Number(a.amount) })),
+      packages: property.packages.map((p) => ({
+        ...p,
+        price: Number(p.price),
+        validFrom: p.validFrom.toISOString().slice(0, 10),
+        validTo: p.validTo.toISOString().slice(0, 10),
+      })),
+      promotions: property.promotions.map((p) => ({
+        ...p,
+        value: Number(p.value),
+        validFrom: p.validFrom.toISOString().slice(0, 10),
+        validTo: p.validTo.toISOString().slice(0, 10),
+        room: p.room ? { id: p.room.id, name: p.room.name } : null,
+      })),
     };
   });
 
@@ -243,5 +258,143 @@ export const deleteAddon = createServerFn({ method: "POST" })
   .validator((id: string) => id)
   .handler(async ({ data: id }) => {
     await db.addon.update({ where: { id }, data: { active: false } });
+    return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Packages
+// ---------------------------------------------------------------------------
+
+export const createPackage = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      propertyId: string;
+      name: string;
+      description?: string;
+      price: number;
+      validFrom: string;
+      validTo: string;
+      included: string[];
+      active?: boolean;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    const pkg = await db.package.create({
+      data: {
+        propertyId: data.propertyId,
+        name: data.name,
+        ...(data.description ? { description: data.description } : {}),
+        price: data.price,
+        validFrom: new Date(data.validFrom),
+        validTo: new Date(data.validTo),
+        included: data.included ?? [],
+        ...(data.active !== undefined ? { active: data.active } : {}),
+      } as Prisma.PackageUncheckedCreateInput,
+    });
+    return { id: pkg.id };
+  });
+
+export const updatePackage = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      id: string;
+      name?: string;
+      description?: string;
+      price?: number;
+      validFrom?: string;
+      validTo?: string;
+      included?: string[];
+      active?: boolean;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    const pkg = await db.package.update({
+      where: { id: data.id },
+      data: {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.description !== undefined ? { description: data.description } : {}),
+        ...(data.price !== undefined ? { price: data.price } : {}),
+        ...(data.validFrom ? { validFrom: new Date(data.validFrom) } : {}),
+        ...(data.validTo ? { validTo: new Date(data.validTo) } : {}),
+        ...(data.included !== undefined ? { included: data.included } : {}),
+        ...(data.active !== undefined ? { active: data.active } : {}),
+      } as Prisma.PackageUncheckedUpdateInput,
+    });
+    return { id: pkg.id };
+  });
+
+export const deletePackage = createServerFn({ method: "POST" })
+  .validator((id: string) => id)
+  .handler(async ({ data: id }) => {
+    await db.package.delete({ where: { id } });
+    return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Promotions
+// ---------------------------------------------------------------------------
+
+export const createPromotion = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      propertyId: string;
+      roomId?: string;
+      name: string;
+      discountType: string;
+      value: number;
+      validFrom: string;
+      validTo: string;
+      active?: boolean;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    const promo = await db.promotion.create({
+      data: {
+        propertyId: data.propertyId,
+        ...(data.roomId ? { roomId: data.roomId } : {}),
+        name: data.name,
+        discountType: data.discountType as Prisma.PromotionUncheckedCreateInput["discountType"],
+        value: data.value,
+        validFrom: new Date(data.validFrom),
+        validTo: new Date(data.validTo),
+        ...(data.active !== undefined ? { active: data.active } : {}),
+      } as Prisma.PromotionUncheckedCreateInput,
+    });
+    return { id: promo.id };
+  });
+
+export const updatePromotion = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      id: string;
+      name?: string;
+      discountType?: string;
+      value?: number;
+      validFrom?: string;
+      validTo?: string;
+      active?: boolean;
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    const promo = await db.promotion.update({
+      where: { id: data.id },
+      data: {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.discountType !== undefined
+          ? { discountType: data.discountType as Prisma.PromotionUncheckedUpdateInput["discountType"] }
+          : {}),
+        ...(data.value !== undefined ? { value: data.value } : {}),
+        ...(data.validFrom ? { validFrom: new Date(data.validFrom) } : {}),
+        ...(data.validTo ? { validTo: new Date(data.validTo) } : {}),
+        ...(data.active !== undefined ? { active: data.active } : {}),
+      } as Prisma.PromotionUncheckedUpdateInput,
+    });
+    return { id: promo.id };
+  });
+
+export const deletePromotion = createServerFn({ method: "POST" })
+  .validator((id: string) => id)
+  .handler(async ({ data: id }) => {
+    await db.promotion.delete({ where: { id } });
     return { ok: true };
   });

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MarketingBlock } from "@/lib/types";
 
@@ -21,7 +22,8 @@ export function isBlockActive(block: MarketingBlock | undefined): block is Marke
  * when disabled — no placeholder, no empty gap.
  */
 export function PromotionalBlock({ block }: { block: MarketingBlock | undefined }) {
-  if (!isBlockActive(block)) return null;
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed || !isBlockActive(block)) return null;
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-10">
@@ -33,6 +35,14 @@ export function PromotionalBlock({ block }: { block: MarketingBlock | undefined 
             : { background: "linear-gradient(135deg, var(--primary) 0%, var(--lagoon) 100%)" }
         }
       >
+        <button
+          type="button"
+          aria-label="Close promotion"
+          onClick={() => setDismissed(true)}
+          className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-black/10 text-muted-foreground transition-colors hover:bg-black/20 hover:text-foreground"
+        >
+          <X className="size-4" />
+        </button>
         <div className="flex flex-col items-start gap-6 md:flex-row md:items-center">
           {block.image && (
             <img
