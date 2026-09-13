@@ -425,6 +425,10 @@ model Property {
   featured               Boolean        @default(false)
   status                 PropertyStatus @default(ACTIVE)
   rating                 Decimal        @default(0) @db.Decimal(3, 2)
+  seoTitle               String?
+  seoDescription         String?
+  latitude               Float?
+  longitude              Float?
   supplierId             String?
   tenantId               String?
   createdAt              DateTime       @default(now())
@@ -452,6 +456,10 @@ model Room {
   id             String        @id @default(cuid())
   propertyId     String
   name           String
+  code           String?
+  bedding        String?
+  photos         String[]      @default([])
+  amenities      String[]      @default([])
   description    String?
   size           String?
   boardBasis     String?

@@ -1,4 +1,4 @@
--- CreateSchema
+﻿-- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateEnum
@@ -232,6 +232,10 @@ CREATE TABLE "Property" (
     "featured" BOOLEAN NOT NULL DEFAULT false,
     "status" "PropertyStatus" NOT NULL DEFAULT 'ACTIVE',
     "rating" DECIMAL(3,2) NOT NULL DEFAULT 0,
+    "seoTitle" TEXT,
+    "seoDescription" TEXT,
+    "latitude" DOUBLE PRECISION,
+    "longitude" DOUBLE PRECISION,
     "supplierId" TEXT,
     "tenantId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -245,6 +249,10 @@ CREATE TABLE "Room" (
     "id" TEXT NOT NULL,
     "propertyId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "code" TEXT,
+    "bedding" TEXT,
+    "photos" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "amenities" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "description" TEXT,
     "size" TEXT,
     "boardBasis" TEXT,

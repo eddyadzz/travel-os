@@ -27,6 +27,7 @@ import {
   updateRoom,
 } from "@/lib/api/catalogue";
 import { updateProperty } from "@/lib/api/properties";
+import { listSuppliersAdmin } from "@/lib/api/suppliers";
 import { money } from "@/lib/pricing";
 
 type PropertyAdmin = NonNullable<Awaited<ReturnType<typeof getPropertyAdmin>>>;
@@ -42,7 +43,13 @@ const ADDON_PRICING = ["PER_PERSON", "PER_ROOM", "FIXED"];
 
 export const Route = createFileRoute("/catalogue/$propertyId")({
   beforeLoad: requireAuth,
-  loader: async ({ params }) => getPropertyAdmin({ data: params.propertyId }),
+  loader: async ({ params }) => {
+    const [property, suppliers] = await Promise.all([
+      getPropertyAdmin({ data: params.propertyId }),
+      listSuppliersAdmin(),
+    ]);
+    return { property, suppliers };
+  },
   head: () => ({
     meta: [{ title: "Edit property | TravelOS by Boliflow" }, { name: "robots", content: "noindex" }],
   }),
@@ -50,7 +57,7 @@ export const Route = createFileRoute("/catalogue/$propertyId")({
 });
 
 function PropertyEditor() {
-  const initial = Route.useLoaderData();
+  const { property: initial, suppliers } = Route.useLoaderData();
   const [property, setProperty] = useState<PropertyAdmin | null>(initial);
   const [form, setForm] = useState(() => ({
     name: initial?.name ?? "",
@@ -59,14 +66,21 @@ function PropertyEditor() {
     atoll: initial?.atoll ?? "",
     island: initial?.island ?? "",
     description: initial?.description ?? "",
+    highlights: (initial?.highlights ?? []).join(", "),
+    amenities: (initial?.amenities ?? []).join(", "),
     transferMethod: initial?.transferMethod ?? "",
     transferDuration: initial?.transferDuration ?? "",
     transferPricePerPerson: String(initial?.transferPricePerPerson ?? 0),
     featured: initial?.featured ?? false,
     status: (initial?.status ?? "ACTIVE") as string,
+    seoTitle: initial?.seoTitle ?? "",
+    seoDescription: initial?.seoDescription ?? "",
+    latitude: initial?.latitude != null ? String(initial.latitude) : "",
+    longitude: initial?.longitude != null ? String(initial.longitude) : "",
+    supplierId: initial?.supplierId ?? "",
   }));
 
-  const [roomForm, setRoomForm] = useState({ name: "", maxAdults: "2", maxChildren: "0", extraGuestRate: "0", boardBasis: "", size: "", pricingMethod: "PER_ROOM" });
+  const [roomForm, setRoomForm] = useState({ name: "", code: "", bedding: "", photos: "", amenities: "", maxAdults: "2", maxChildren: "0", extraGuestRate: "0", boardBasis: "", size: "", pricingMethod: "PER_ROOM" });
   const [editingRoom, setEditingRoom] = useState<RoomAdmin | null>(null);
   const [rateForm, setRateForm] = useState<{ roomId: string; validFrom: string; validTo: string; amount: string; season: string }>({ roomId: "", validFrom: "", validTo: "", amount: "", season: "" });
   const [addonForm, setAddonForm] = useState({ name: "", description: "", pricingType: "PER_PERSON", amount: "0", category: "SPA" });
@@ -90,11 +104,18 @@ function PropertyEditor() {
           atoll: form.atoll,
           island: form.island,
           description: form.description,
+          highlights: form.highlights.split(",").map((s) => s.trim()).filter(Boolean),
+          amenities: form.amenities.split(",").map((s) => s.trim()).filter(Boolean),
           transferMethod: form.transferMethod,
           transferDuration: form.transferDuration,
           transferPricePerPerson: Number(form.transferPricePerPerson) || 0,
           featured: form.featured,
           status: form.status,
+          seoTitle: form.seoTitle,
+          seoDescription: form.seoDescription,
+          latitude: form.latitude.trim() ? Number(form.latitude) : null,
+          longitude: form.longitude.trim() ? Number(form.longitude) : null,
+          supplierId: form.supplierId || null,
         },
       },
     });
@@ -104,11 +125,17 @@ function PropertyEditor() {
 
   const saveRoom = async () => {
     if (!property || !roomForm.name.trim()) return;
+    const photos = roomForm.photos.split(",").map((s) => s.trim()).filter(Boolean);
+    const amenities = roomForm.amenities.split(",").map((s) => s.trim()).filter(Boolean);
     if (editingRoom) {
       await updateRoom({
         data: {
           id: editingRoom.id,
           name: roomForm.name,
+          code: roomForm.code,
+          bedding: roomForm.bedding,
+          photos,
+          amenities,
           maxAdults: Number(roomForm.maxAdults),
           maxChildren: Number(roomForm.maxChildren),
           extraGuestRate: Number(roomForm.extraGuestRate) || 0,
@@ -122,6 +149,10 @@ function PropertyEditor() {
         data: {
           propertyId: property.id,
           name: roomForm.name,
+          code: roomForm.code,
+          bedding: roomForm.bedding,
+          photos,
+          amenities,
           maxAdults: Number(roomForm.maxAdults),
           maxChildren: Number(roomForm.maxChildren),
           extraGuestRate: Number(roomForm.extraGuestRate) || 0,
@@ -133,7 +164,7 @@ function PropertyEditor() {
       toast.success("Room added");
     }
     setEditingRoom(null);
-    setRoomForm({ name: "", maxAdults: "2", maxChildren: "0", extraGuestRate: "0", boardBasis: "", size: "", pricingMethod: "PER_ROOM" });
+    setRoomForm({ name: "", code: "", bedding: "", photos: "", amenities: "", maxAdults: "2", maxChildren: "0", extraGuestRate: "0", boardBasis: "", size: "", pricingMethod: "PER_ROOM" });
     await reload();
   };
 
@@ -141,6 +172,10 @@ function PropertyEditor() {
     setEditingRoom(r);
     setRoomForm({
       name: r.name,
+      code: r.code ?? "",
+      bedding: r.bedding ?? "",
+      photos: r.photos.join(", "),
+      amenities: r.amenities.join(", "),
       maxAdults: String(r.maxAdults),
       maxChildren: String(r.maxChildren),
       extraGuestRate: String(r.extraGuestRate ?? 0),
@@ -344,6 +379,37 @@ function PropertyEditor() {
                 </select>
               </div>
               <div className="grid gap-1.5">
+                <Label>Supplier</Label>
+                <select
+                  className="h-9 rounded-md border bg-background px-2"
+                  value={form.supplierId}
+                  onChange={(e) => setForm({ ...form, supplierId: e.target.value })}
+                >
+                  <option value="">None</option>
+                  {suppliers.filter((s) => s.active).map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid gap-1.5">
+                <Label>Latitude</Label>
+                <Input value={form.latitude} placeholder="4.218" onChange={(e) => setForm({ ...form, latitude: e.target.value })} />
+              </div>
+              <div className="grid gap-1.5">
+                <Label>Longitude</Label>
+                <Input value={form.longitude} placeholder="73.410" onChange={(e) => setForm({ ...form, longitude: e.target.value })} />
+              </div>
+              <div className="grid gap-1.5">
+                <Label>SEO title</Label>
+                <Input value={form.seoTitle} onChange={(e) => setForm({ ...form, seoTitle: e.target.value })} />
+              </div>
+              <div className="grid gap-1.5 sm:col-span-2">
+                <Label>SEO description</Label>
+                <Input value={form.seoDescription} onChange={(e) => setForm({ ...form, seoDescription: e.target.value })} />
+              </div>
+              <div className="grid gap-1.5">
                 <Label>Transfer method</Label>
                 <Input
                   value={form.transferMethod}
@@ -373,6 +439,14 @@ function PropertyEditor() {
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                 />
               </div>
+              <div className="grid gap-1.5">
+                <Label>Highlights (comma separated)</Label>
+                <Input value={form.highlights} onChange={(e) => setForm({ ...form, highlights: e.target.value })} />
+              </div>
+              <div className="grid gap-1.5 sm:col-span-2">
+                <Label>Amenities (comma separated)</Label>
+                <Input value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} />
+              </div>
             </div>
             <label className="mt-4 flex items-center gap-2 text-sm">
               <input
@@ -398,6 +472,22 @@ function PropertyEditor() {
                   <Input value={roomForm.name} placeholder="Beach Villa" onChange={(e) => setRoomForm({ ...roomForm, name: e.target.value })} />
                 </div>
                 <div className="grid gap-1.5">
+                  <Label>Room code</Label>
+                  <Input value={roomForm.code} placeholder="BV1" onChange={(e) => setRoomForm({ ...roomForm, code: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Bedding</Label>
+                  <Input value={roomForm.bedding} placeholder="1 King" onChange={(e) => setRoomForm({ ...roomForm, bedding: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>Photos (comma-separated URLs)</Label>
+                  <Input value={roomForm.photos} placeholder="/uploads/rooms/villa-1.jpg" onChange={(e) => setRoomForm({ ...roomForm, photos: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5 sm:col-span-2">
+                  <Label>Amenities (comma separated)</Label>
+                  <Input value={roomForm.amenities} placeholder="WiFi, Pool, Air conditioning" onChange={(e) => setRoomForm({ ...roomForm, amenities: e.target.value })} />
+                </div>
+                <div className="grid gap-1.5">
                   <Label>Max adults</Label>
                   <Input type="number" value={roomForm.maxAdults} onChange={(e) => setRoomForm({ ...roomForm, maxAdults: e.target.value })} />
                 </div>
@@ -421,7 +511,7 @@ function PropertyEditor() {
               <div className="mt-4 flex gap-2">
                 <Button onClick={saveRoom}>{editingRoom ? "Save room" : "Add room"}</Button>
                 {editingRoom && (
-                  <Button variant="outline" onClick={() => { setEditingRoom(null); setRoomForm({ name: "", maxAdults: "2", maxChildren: "0", extraGuestRate: "0", boardBasis: "", size: "", pricingMethod: "PER_ROOM" }); }}>
+                  <Button variant="outline" onClick={() => { setEditingRoom(null); setRoomForm({ name: "", code: "", bedding: "", photos: "", amenities: "", maxAdults: "2", maxChildren: "0", extraGuestRate: "0", boardBasis: "", size: "", pricingMethod: "PER_ROOM" }); }}>
                     <X className="size-4" /> Cancel
                   </Button>
                 )}

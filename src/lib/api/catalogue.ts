@@ -63,6 +63,10 @@ export const createRoom = createServerFn({ method: "POST" })
     (input: {
       propertyId: string;
       name: string;
+      code?: string;
+      bedding?: string;
+      photos?: string[];
+      amenities?: string[];
       maxAdults?: number;
       maxChildren?: number;
       extraGuestRate?: number;
@@ -77,6 +81,10 @@ export const createRoom = createServerFn({ method: "POST" })
       data: {
         propertyId: data.propertyId,
         name: data.name,
+        ...(data.code ? { code: data.code } : {}),
+        ...(data.bedding ? { bedding: data.bedding } : {}),
+        photos: data.photos ?? [],
+        amenities: data.amenities ?? [],
         ...(data.maxAdults !== undefined ? { maxAdults: data.maxAdults } : {}),
         ...(data.maxChildren !== undefined ? { maxChildren: data.maxChildren } : {}),
         ...(data.extraGuestRate !== undefined ? { extraGuestRate: data.extraGuestRate } : {}),
@@ -94,6 +102,10 @@ export const updateRoom = createServerFn({ method: "POST" })
     (input: {
       id: string;
       name?: string;
+      code?: string;
+      bedding?: string;
+      photos?: string[];
+      amenities?: string[];
       maxAdults?: number;
       maxChildren?: number;
       extraGuestRate?: number;
@@ -108,6 +120,10 @@ export const updateRoom = createServerFn({ method: "POST" })
       where: { id: data.id },
       data: {
         ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.code !== undefined ? { code: data.code } : {}),
+        ...(data.bedding !== undefined ? { bedding: data.bedding } : {}),
+        ...(data.photos !== undefined ? { photos: data.photos } : {}),
+        ...(data.amenities !== undefined ? { amenities: data.amenities } : {}),
         ...(data.maxAdults !== undefined ? { maxAdults: data.maxAdults } : {}),
         ...(data.maxChildren !== undefined ? { maxChildren: data.maxChildren } : {}),
         ...(data.extraGuestRate !== undefined ? { extraGuestRate: data.extraGuestRate } : {}),

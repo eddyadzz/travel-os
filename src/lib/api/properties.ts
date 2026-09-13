@@ -152,6 +152,11 @@ export type CreatePropertyInput = {
   rating?: number;
   status?: string;
   addonIds?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  supplierId?: string | null;
 };
 
 export type UpdatePropertyInput = { id: string; data: Partial<CreatePropertyInput> };
@@ -177,6 +182,11 @@ export const createProperty = createServerFn({ method: "POST" })
         rating: input.rating ?? 0,
         ...(input.status ? { status: input.status as Prisma.PropertyCreateInput["status"] } : {}),
         ...(input.addonIds ? { addons: { connect: input.addonIds.map((id) => ({ id })) } } : {}),
+        ...(input.seoTitle ? { seoTitle: input.seoTitle } : {}),
+        ...(input.seoDescription ? { seoDescription: input.seoDescription } : {}),
+        ...(input.latitude !== undefined ? { latitude: input.latitude } : {}),
+        ...(input.longitude !== undefined ? { longitude: input.longitude } : {}),
+        ...(input.supplierId ? { supplierId: input.supplierId } : {}),
       } as Prisma.PropertyCreateInput,
       include: propertyInclude,
     });
@@ -211,6 +221,11 @@ export const updateProperty = createServerFn({ method: "POST" })
           ? { status: data.status as Prisma.PropertyUpdateInput["status"] }
           : {}),
         ...(data.addonIds ? { addons: { set: data.addonIds.map((id) => ({ id })) } } : {}),
+        ...(data.seoTitle !== undefined ? { seoTitle: data.seoTitle } : {}),
+        ...(data.seoDescription !== undefined ? { seoDescription: data.seoDescription } : {}),
+        ...(data.latitude !== undefined ? { latitude: data.latitude } : {}),
+        ...(data.longitude !== undefined ? { longitude: data.longitude } : {}),
+        ...(data.supplierId !== undefined ? { supplierId: data.supplierId || null } : {}),
       } as Prisma.PropertyUpdateInput,
       include: propertyInclude,
     });
